@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ Hàng - FAHASA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style th:replace="~{fragments/navbar :: navbar-styles}"></style>
+    <style>
+        body { background: #f9fafb; }
+        .cart-container { max-width: 1400px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        /* Breadcrumb */
+        .breadcrumb-modern { background: white; padding: 1rem 1.5rem; border-radius: 0.75rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .breadcrumb-modern a { color: #667eea; text-decoration: none; }
+        .breadcrumb-modern a:hover { text-decoration: underline; }
+
+        /* Page Header */
+        .page-header { background: white; padding: 1.5rem 2rem; border-radius: 0.75rem; margin-bottom: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+        .page-title { font-size: 2rem; font-weight: 700; color: #1f2937; margin: 0; display: flex; align-items: center; gap: 0.75rem; }
+        .items-count { font-size: 1rem; color: #6b7280; font-weight: 400; }
+        
+        /* Select All bar */
+        .select-bar { background: white; border-radius: 0.75rem; padding: 1rem 1.5rem; margin-bottom: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 1rem; }
+        .select-bar label { cursor: pointer; font-weight: 600; color: #374151; margin: 0; display: flex; align-items: center; gap: 0.6rem; }
+        .select-bar .selected-info { margin-left: auto; font-size: 0.875rem; color: #6b7280; }
+
+        /* Cart Items */
+        .cart-items-card { background: white; border-radius: 0.75rem; padding: 1rem 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+        .cart-item { display: flex; align-items: center; padding: 1.25rem 0; border-bottom: 1px solid #f3f4f6; transition: all 0.3s; gap: 1rem; }
+        .cart-item:last-child { border-bottom: none; }
+        .cart-item:hover { background: #f9fafb; border-radius: 0.5rem; }
+
+        /* Checkbox */
+        .item-checkbox-wrap { display: flex; align-items: center; padding: 0 0.5rem; }
+        .item-checkbox { width: 20px; height: 20px; cursor: pointer; accent-color: #667eea; }
+
+        .item-image { width: 90px; height: 125px; object-fit: cover; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .item-info { flex: 1; padding: 0 0.75rem; }
+        .item-title { font-size: 1rem; font-weight: 600; color: #1f2937; margin-bottom: 0.4rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .item-author { color: #6b7280; font-size: 0.875rem; margin-bottom: 0.4rem; }
+        .item-price { font-size: 1.125rem; font-weight: 700; color: #667eea; }
+
+        /* Quantity */
+        .quantity-section { display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+        .quantity-label { font-size: 0.75rem; color: #6b7280; font-weight: 500; }
+        .quantity-controls { display: flex; align-items: center; gap: 0.4rem; }
+        .quantity-btn { width: 34px; height: 34px; border: 2px solid #e5e7eb; border-radius: 0.5rem; background: white; color: #374151; font-size: 1rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; }
+        .quantity-btn:hover { border-color: #667eea; color: #667eea; background: #eff6ff; }
+        .quantity-input { width: 56px; height: 34px; text-align: center; border: 2px solid #e5e7eb; border-radius: 0.5rem; font-weight: 600; color: #1f2937; }
+        .quantity-input:focus { outline: none; border-color: #667eea; }
+
+        /* Actions */
+        .item-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem; }
+        .item-subtotal { font-size: 1.35rem; font-weight: 700; color: #1f2937; }
+        .btn-remove { background: #fee2e2; color: #dc2626; border: none; padding: 0.4rem 0.875rem; border-radius: 0.5rem; font-weight: 500; font-size: 0.875rem; cursor: pointer; transition: all 0.3s; }
+        .btn-remove:hover { background: #fecaca; transform: scale(1.05); }
+
+        /* Dimmed when not selected */
+        .cart-item.dimmed { opacity: 0.45; }
+
+        /* Summary Sidebar */
+        .summary-card { background: white; border-radius: 0.75rem; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 90px; }
+        .summary-title { font-size: 1.5rem; font-weight: 700; color: #1f2937; margin-bottom: 1.5rem; }
+        .summary-row { display: flex; justify-content: space-between; padding: 0.9rem 0; border-bottom: 1px solid #f3f4f6; }
+        .summary-label { color: #6b7280; font-weight: 500; }
+        .summary-value { color: #1f2937; font-weight: 600; }
+        .summary-total { display: flex; justify-content: space-between; padding: 1.25rem 0 0 0; font-size: 1.5rem; font-weight: 700; }
+        .total-label { color: #1f2937; }
+        .total-value { color: #667eea; }
+        .btn-checkout { width: 100%; padding: 1rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 0.75rem; font-weight: 600; font-size: 1.125rem; margin-top: 1.5rem; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+        .btn-checkout:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35); }
+        .btn-checkout:disabled { background: #9ca3af; cursor: not-allowed; }
+        .btn-continue { width: 100%; padding: 0.875rem; background: #f3f4f6; color: #374151; border: none; border-radius: 0.75rem; font-weight: 500; margin-top: 1rem; cursor: pointer; transition: all 0.3s; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn-continue:hover { background: #e5e7eb; color: #1f2937; }
+
+        /* Empty Cart */
+        .empty-cart { background: white; border-radius: 0.75rem; padding: 4rem 2rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .empty-icon { font-size: 5rem; color: #d1d5db; margin-bottom: 1.5rem; }
+        .empty-title { font-size: 1.75rem; font-weight: 700; color: #1f2937; margin-bottom: 0.75rem; }
+        .empty-text { color: #6b7280; margin-bottom: 2rem; }
+        .btn-shop { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 0.875rem 2rem; border-radius: 0.75rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; transition: all 0.3s; }
+        .btn-shop:hover { color: white; transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35); }
+
+        /* Loading */
+        .loading-container { background: white; border-radius: 0.75rem; padding: 4rem 2rem; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .spinner { border: 4px solid #f3f4f6; border-top: 4px solid #667eea; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cart-item { flex-direction: column; align-items: flex-start; }
+            .item-info { padding: 0; }
+            .item-actions { width: 100%; flex-direction: row; justify-content: space-between; align-items: center; }
+            .summary-card { position: static; margin-top: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    
+    <div class="cart-container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-modern">
+            <a href="/"><i class="fas fa-home"></i> Trang Chủ</a>
+            <span class="mx-2">/</span>
+            <span>Giỏ Hàng</span>
+        </div>
+        
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-shopping-cart"></i>
+                Giỏ Hàng Của Bạn
+                <span class="items-count" id="itemsCount"></span>
+            </h1>
+        </div>
+        
+        <!-- Loading -->
+        <div id="loading" class="loading-container">
+            <div class="spinner"></div>
+            <p style="color: #6b7280; font-weight: 500;">Đang tải giỏ hàng...</p>
+        </div>
+        
+        <!-- Cart Content -->
+        <div id="cartContent" style="display: none;">
+            <div class="row">
+                <!-- Cart Items -->
+                <div class="col-lg-8">
+                    <!-- Select All Bar -->
+                    <div class="select-bar">
+                        <input type="checkbox" id="selectAll" class="item-checkbox" onchange="toggleSelectAll()">
+                        <label for="selectAll">
+                            <i class="fas fa-check-square" style="color: #667eea;"></i>
+                            Chọn tất cả
+                        </label>
+                        <span class="selected-info" id="selectedInfo">Chưa chọn sản phẩm nào</span>
+                    </div>
+
+                    <div class="cart-items-card">
+                        <div id="cartItems"></div>
+                    </div>
+                </div>
+                
+                <!-- Summary Sidebar -->
+                <div class="col-lg-4">
+                    <div class="summary-card">
+                        <h3 class="summary-title">Tóm Tắt Đơn Hàng</h3>
+                        
+                        <div class="summary-row">
+                            <span class="summary-label">Đã chọn:</span>
+                            <span class="summary-value" id="selectedCount">0 sản phẩm</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Tạm tính:</span>
+                            <span class="summary-value" id="subtotal">0 VND</span>
+                        </div>
+                        <div class="summary-row">
+                            <span class="summary-label">Phí vận chuyển:</span>
+                            <span class="summary-value">Miễn phí</span>
+                        </div>
+                        
+                        <div class="summary-total">
+                            <span class="total-label">Tổng cộng:</span>
+                            <span class="total-value" id="total">0 VND</span>
+                        </div>
+                        
+                        <!-- Checkout Button (USER only) -->
+                        <button sec:authorize="hasRole('USER')" 
+                                class="btn-checkout" 
+                                id="checkoutBtn"
+                                disabled
+                                onclick="proceedToCheckout()">
+                            <i class="fas fa-credit-card"></i>
+                            <span>Tiến Hành Thanh Toán</span>
+                        </button>
+                        
+                        <!-- Admin Warning -->
+                        <div sec:authorize="hasRole('ADMIN')" class="alert alert-warning mt-3 mb-0">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Admin không thể đặt hàng
+                        </div>
+                        
+                        <a href="/books" class="btn-continue">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>Tiếp Tục Mua Sắm</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Empty Cart -->
+        <div id="emptyCart" class="empty-cart" style="display: none;">
+            <i class="fas fa-shopping-cart empty-icon"></i>
+            <h2 class="empty-title">Giỏ Hàng Trống</h2>
+            <p class="empty-text">Bạn chưa có sản phẩm nào trong giỏ hàng. Hãy khám phá và thêm sách yêu thích!</p>
+            <a href="/books" class="btn-shop">
+                <i class="fas fa-book"></i>
+                <span>Khám Phá Sách</span>
+            </a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="~{fragments/navbar :: navbar-scripts}"></div>
+    <script>
+        let cart = null;
+        let selectedBookIds = new Set(); // Track checked book IDs
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCart();
+        });
+        
+        function loadCart() {
+            fetch('/api/cart')
+                .then(response => response.json())
+                .then(data => {
+                    cart = data;
+                    displayCart();
+                })
+                .catch(error => {
+                    console.error('Error loading cart:', error);
+                    document.getElementById('loading').innerHTML = 
+                        '<p style="color: #dc2626; font-weight: 500;">Lỗi khi tải giỏ hàng</p>';
+                });
+        }
+        
+        function displayCart() {
+            document.getElementById('loading').style.display = 'none';
+            
+            if (!cart.items || cart.items.length === 0) {
+                document.getElementById('emptyCart').style.display = 'block';
+                return;
+            }
+            
+            document.getElementById('cartContent').style.display = 'block';
+            document.getElementById('itemsCount').textContent = `(${cart.items.length} sản phẩm)`;
+            
+            const cartItemsHtml = cart.items.map(item => `
+                <div class="cart-item" id="row-${item.bookId}">
+                    <div class="item-checkbox-wrap">
+                        <input type="checkbox"
+                               class="item-checkbox item-check"
+                               id="chk-${item.bookId}"
+                               value="${item.bookId}"
+                               onchange="onItemCheck(${item.bookId})">
+                    </div>
+                    <a href="/books/detail?id=${item.bookId}" style="text-decoration:none;">
+                        <img src="${item.imageUrl || 'https://via.placeholder.com/90x125?text=No+Image'}" 
+                             alt="${item.bookTitle}" 
+                             class="item-image">
+                    </a>
+                    
+                    <div class="item-info">
+                        <a href="/books/detail?id=${item.bookId}" class="item-title" style="text-decoration:none; color:inherit;">${item.bookTitle}</a>
+                        <div class="item-author">Tác giả: ${item.author || 'N/A'}</div>
+                        <div class="item-price">${formatPrice(item.price)} VND</div>
+                    </div>
+                    
+                    <div class="quantity-section">
+                        <span class="quantity-label">Số lượng</span>
+                        <div class="quantity-controls">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.bookId}, ${item.quantity - 1})">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <input type="number" 
+                                   class="quantity-input" 
+                                   value="${item.quantity}" 
+                                   onchange="updateQuantity(${item.bookId}, this.value)" 
+                                   min="1">
+                            <button class="quantity-btn" onclick="updateQuantity(${item.bookId}, ${item.quantity + 1})">
+                                <i class="fas fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="item-actions">
+                        <div class="item-subtotal" id="sub-${item.bookId}">${formatPrice(item.price * item.quantity)} VND</div>
+                        <button class="btn-remove" onclick="removeItem(${item.bookId})">
+                            <i class="fas fa-trash me-1"></i> Xóa
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('cartItems').innerHTML = cartItemsHtml;
+            updateSummary();
+        }
+
+        // ---- Checkbox logic ----
+        function onItemCheck(bookId) {
+            const chk = document.getElementById('chk-' + bookId);
+            const row = document.getElementById('row-' + bookId);
+            if (chk.checked) {
+                selectedBookIds.add(String(bookId));
+                row.classList.remove('dimmed');
+            } else {
+                selectedBookIds.delete(String(bookId));
+                row.classList.add('dimmed');
+            }
+            syncSelectAll();
+            updateSummary();
+        }
+
+        function toggleSelectAll() {
+            const allChk = document.getElementById('selectAll');
+            document.querySelectorAll('.item-check').forEach(chk => {
+                chk.checked = allChk.checked;
+                const row = document.getElementById('row-' + chk.value);
+                if (allChk.checked) {
+                    selectedBookIds.add(chk.value);
+                    row && row.classList.remove('dimmed');
+                } else {
+                    selectedBookIds.delete(chk.value);
+                    row && row.classList.add('dimmed');
+                }
+            });
+            updateSummary();
+        }
+
+        function syncSelectAll() {
+            const allChks = document.querySelectorAll('.item-check');
+            const checkedChks = document.querySelectorAll('.item-check:checked');
+            const allChk = document.getElementById('selectAll');
+            if (checkedChks.length === 0) {
+                allChk.checked = false;
+                allChk.indeterminate = false;
+            } else if (checkedChks.length === allChks.length) {
+                allChk.checked = true;
+                allChk.indeterminate = false;
+            } else {
+                allChk.checked = false;
+                allChk.indeterminate = true;
+            }
+        }
+
+        function updateSummary() {
+            if (!cart || !cart.items) return;
+
+            const selectedItems = cart.items.filter(item => selectedBookIds.has(String(item.bookId)));
+            const selectedTotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const selectedQty = selectedItems.reduce((sum, item) => sum + item.quantity, 0);
+            const selectedCount = selectedItems.length;
+
+            document.getElementById('selectedCount').textContent = `${selectedCount} sản phẩm (${selectedQty} quyển)`;
+            document.getElementById('subtotal').textContent = formatPrice(selectedTotal) + ' VND';
+            document.getElementById('total').textContent = formatPrice(selectedTotal) + ' VND';
+
+            // Info text
+            document.getElementById('selectedInfo').textContent = 
+                selectedCount > 0 
+                    ? `Đã chọn ${selectedCount}/${cart.items.length} sản phẩm` 
+                    : 'Chưa chọn sản phẩm nào';
+
+            // Enable / disable checkout button
+            const btn = document.getElementById('checkoutBtn');
+            if (btn) {
+                btn.disabled = selectedCount === 0;
+            }
+        }
+        
+        function updateQuantity(bookId, quantity) {
+            quantity = parseInt(quantity);
+            if (quantity < 1) {
+                removeItem(bookId);
+                return;
+            }
+            
+            fetch('/api/cart/update', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookId: bookId, quantity: quantity })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Remember checked state
+                const wasChecked = selectedBookIds.has(String(bookId));
+                cart = data;
+                displayCart();
+                // Restore checked state
+                if (wasChecked) {
+                    const chk = document.getElementById('chk-' + bookId);
+                    if (chk) {
+                        chk.checked = true;
+                        selectedBookIds.add(String(bookId));
+                        const row = document.getElementById('row-' + bookId);
+                        if (row) row.classList.remove('dimmed');
+                    }
+                }
+                syncSelectAll();
+                updateSummary();
+                if (typeof updateCartBadge === 'function') updateCartBadge();
+            })
+            .catch(error => {
+                console.error('Error updating quantity:', error);
+                showError(error.message || 'Có lỗi xảy ra!');
+            });
+        }
+        
+        function removeItem(bookId) {
+            if (!confirm('Bạn có chắc muốn xóa sản phẩm này khỏi giỏ hàng?')) {
+                return;
+            }
+            
+            fetch(`/api/cart/remove/${bookId}`, {
+                method: 'DELETE'
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                selectedBookIds.delete(String(bookId));
+                cart = data;
+                displayCart();
+                if (typeof updateCartBadge === 'function') updateCartBadge();
+            })
+            .catch(error => {
+                console.error('Error removing item:', error);
+                showError(error.message || 'Có lỗi xảy ra!');
+            });
+        }
+        
+        function proceedToCheckout() {
+            if (selectedBookIds.size === 0) {
+                showWarning('Vui lòng chọn ít nhất một sản phẩm để thanh toán!');
+                return;
+            }
+            // Save selected IDs in sessionStorage for checkout page
+            sessionStorage.setItem('selectedBookIds', JSON.stringify(Array.from(selectedBookIds)));
+            window.location.href = '/checkout';
+        }
+        
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch sử giao hàng - FAHASA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <th:block th:insert="~{fragments/navbar :: navbar-styles}"></th:block>
+    <style>
+        body { font-family: 'Poppins', sans-serif; background: #f3f4f6; color: #0f172a; }
+        .container { max-width: 1100px; margin: 4.5rem auto; padding: 0 1rem; }
+        .page-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-bottom:1.25rem; }
+        .page-head h2 { font-size:1.5rem; margin:0; display:flex; gap:0.6rem; align-items:center; }
+        .filters { display:flex; gap:0.5rem; align-items:center; }
+        .card-order { background:white;border-radius:12px;padding:1rem;box-shadow:0 6px 24px rgba(2,6,23,0.06);margin-bottom:1rem; }
+        .order-top { display:flex;justify-content:space-between;align-items:center;gap:1rem; }
+        .order-meta { display:flex;gap:1rem;align-items:center; }
+        .order-id { font-weight:700; color:#0f172a; }
+        .order-date { color:#6b7280; font-size:0.9rem; }
+        .badge-delivered { background:#d1fae5;color:#065f46;padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.85rem; }
+        .status-PAID { background: #d1fae5; color: #065f46; }
+        .status-PENDING { background: #fef3c7; color: #92400e; }
+        .status-CONFIRMED { background: #dbeafe; color: #1e40af; }
+        .status-SHIPPED { background: #e0e7ff; color: #3730a3; }
+        .status-DELIVERED { background: #d1fae5; color: #065f46; }
+        .status-CANCELLED { background: #fee2e2; color: #991b1b; }
+        .items-row { display:flex;gap:0.75rem;align-items:center;margin-top:0.75rem; }
+        .thumb { width:64px;height:84px;border-radius:8px;object-fit:cover;box-shadow:0 4px 12px rgba(2,6,23,0.06); }
+        .item-summary { color:#374151;font-weight:600; }
+        .order-actions { display:flex;gap:0.5rem;align-items:center; }
+        .muted { color:#6b7280;font-size:0.95rem; }
+        .empty { text-align:center; color:#6b7280; padding:3rem 1rem; background:white; border-radius:12px; }
+        .expand-btn { background:transparent;border:none;color:#667eea;cursor:pointer;font-weight:700; }
+        @media (max-width:768px){ .order-top{flex-direction:column;align-items:flex-start;} .items-row{flex-wrap:wrap;} }
+    </style>
+</head>
+<body>
+    <nav th:insert="~{fragments/navbar :: navbar}"></nav>
+
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="fas fa-history"></i> Lịch sử mua hàng</h2>
+            <a href="/books" class="btn btn-outline-primary">Tiếp tục mua</a>
+        </div>
+
+        <div id="loading" class="text-center my-4">
+            <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div>
+        </div>
+
+        <div id="list"></div>
+        <div id="empty" class="empty" style="display:none">Chưa có đơn hàng</div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block th:insert="~{fragments/navbar :: navbar-scripts}"></th:block>
+
+    <script>
+        function fmtDate(d) { try { return new Date(d).toLocaleString('vi-VN'); } catch(e) { return d; } }
+
+        function render(orders) {
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            orders.forEach(o => {
+                const el = document.createElement('div');
+                el.className = 'card-order';
+                const firstItems = (o.items || []).slice(0,3);
+                el.innerHTML = `
+                    <div class="order-top">
+                        <div class="order-meta">
+                            <div>
+                                <div class="order-id">Đơn #${o.id}</div>
+                                <div class="order-date">${fmtDate(o.createdAt || o.orderDate)}</div>
+                            </div>
+                            <div style="margin-left:8px;"><span id="status-span-${o.id}" class="order-status" style="padding:6px 10px;border-radius:999px;font-weight:700;font-size:0.85rem;">Trạng thái</span></div>
+                        </div>
+                        <div class="order-actions">
+                            <div class="muted">${(o.totalAmount || 0).toLocaleString('vi-VN')} VND</div>
+                            <a href="/orders/detail?id=${encodeURIComponent(o.id)}" class="btn btn-sm btn-outline-primary">Chi tiết</a>
+                            <button class="expand-btn" data-id="${o.id}">Xem</button>
+                        </div>
+                    </div>
+                    <div class="items-row" id="items-${o.id}">
+                        ${firstItems.map(it => `<img class="thumb" src="${it.imageUrl || '/static/placeholder.png'}" title="${(it.bookTitle||'')}">`).join('')}
+                        <div style="flex:1">
+                            <div class="item-summary">${(o.items && o.items.length) || 0} sản phẩm</div>
+                            <div class="muted">Giao tới: ${o.shippingAddress ? (o.shippingAddress.fullName || o.shippingAddress.name || '') : ''}</div>
+                        </div>
+                    </div>
+                `;
+
+                list.appendChild(el);
+
+                // set status label and class based on order.status
+                (function(){
+                    const orderStatus = (o.status || '').toString().toUpperCase();
+                    let statusLabel = '';
+                    switch(orderStatus) {
+                        case 'PENDING': statusLabel = 'Chờ xử lý'; break;
+                        case 'CONFIRMED': statusLabel = 'Đã xác nhận'; break;
+                        case 'SHIPPED': statusLabel = 'Đang giao'; break;
+                        case 'DELIVERED': statusLabel = 'Đã giao'; break;
+                        case 'CANCELLED': statusLabel = 'Đã hủy'; break;
+                        default: statusLabel = orderStatus || 'Không xác định';
+                    }
+                    const statusSpan = document.getElementById('status-span-' + (o.id || o._id));
+                    if (statusSpan) {
+                        statusSpan.textContent = statusLabel;
+                        statusSpan.classList.add('status-' + orderStatus);
+                    }
+                })();
+
+                // toggle details
+                el.querySelectorAll('.expand-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.getAttribute('data-id');
+                        const itemsDiv = document.getElementById('items-' + id);
+                        if (!itemsDiv) return;
+                        if (itemsDiv.style.maxHeight) {
+                            itemsDiv.style.maxHeight = null;
+                            btn.textContent = 'Xem';
+                        } else {
+                            itemsDiv.style.maxHeight = '800px';
+                            btn.textContent = 'Thu gọn';
+                        }
+                    });
+                });
+            });
+        }
+
+        function loadDelivered() {
+            fetch('/api/orders?all=true', { credentials: 'include' })
+                .then(r => {
+                    if (r.status === 401) {
+                        // Not authenticated
+                        document.getElementById('loading').style.display = 'none';
+                        document.getElementById('list').style.display = 'none';
+                        const empty = document.getElementById('empty');
+                        empty.style.display = 'block';
+                        empty.innerHTML = '<div style="padding:1rem;">Vui lòng <a href="/login?redirect=/orders/delivered">đăng nhập</a> để xem lịch sử đơn hàng.</div>';
+                        throw new Error('Unauthorized');
+                    }
+                    if (!r.ok) throw new Error('Không thể tải');
+                    return r.json();
+                })
+                .then(data => {
+                    const arr = Array.isArray(data) ? data : (data && Array.isArray(data.orders) ? data.orders : (data ? [data] : []));
+                    // Filter orders that were paid via MOMO or VNPAY and have paymentStatus = PAID
+                    const paidByMomoOrVnpay = arr.filter(o => {
+                        const pm = (o.paymentMethod || '').toString().toUpperCase();
+                        const paid = (o.paymentStatus || '').toString().toUpperCase();
+                        return (pm === 'MOMO' || pm === 'VNPAY') && paid === 'PAID';
+                    });
+
+                    document.getElementById('loading').style.display = 'none';
+                    if (!paidByMomoOrVnpay || paidByMomoOrVnpay.length === 0) { 
+                        document.getElementById('empty').style.display = 'block'; 
+                        return; 
+                    }
+                    render(paidByMomoOrVnpay.sort((a, b) => new Date(b.createdAt || b.orderDate) - new Date(a.createdAt || a.orderDate)));
+                })
+                .catch(err => {
+                    if (err.message === 'Unauthorized') return;
+                    console.error(err);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('empty').style.display = 'block';
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDelivered);
+    </script>
+</body>
+</html>

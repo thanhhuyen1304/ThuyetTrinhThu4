@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Test Simple Page</title>
+</head>
+<body>
+    <h1>Test Page - Thymeleaf Working!</h1>
+    
+    <h2>Books Count: <span th:text="${totalItems}">0</span></h2>
+    
+    <h3>Books List:</h3>
+    <ul>
+        <li th:each="book : ${books}" th:text="${book.title}">Book Title</li>
+    </ul>
+    
+    <h3>Categories:</h3>
+    <ul>
+        <li th:each="cat : ${categories}" th:text="${cat}">Category</li>
+    </ul>
+    
+    <hr>
+    <p>If you see this page, Thymeleaf is working!</p>
+    <p>If books list is empty, check MongoDB database.</p>
+</body>
+</html>

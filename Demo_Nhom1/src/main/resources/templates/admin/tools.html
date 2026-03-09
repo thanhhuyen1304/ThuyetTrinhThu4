@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cài Đặt - Admin Panel</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style th:replace="admin/sidebar :: head/style"></style>
+    <style>
+        .card { border: none; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+        .card-header { background: white; border-bottom: 1px solid #e3e6f0; padding: 20px; font-weight: 600; }
+        .breadcrumb { background: none; padding: 0; margin: 0 0 20px 0; }
+    </style>
+</head>
+<body>
+    <div th:replace="admin/sidebar :: sidebar('tools')"></div>
+    <div class="admin-content">
+        <div th:replace="admin/sidebar :: topbar('Cài Đặt')"></div>
+        <div class="content-area">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="/admin/dashboard">Bảng Điều Khiển</a></li>
+                    <li class="breadcrumb-item active">Cài Đặt</li>
+                </ol>
+            </nav>
+            
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark"><h5 class="mb-0"><i class="fas fa-broom"></i> Dọn Dẹp Dữ Liệu</h5></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6><i class="fas fa-trash text-danger"></i> Xóa Sách Mẫu</h6>
+                        <p class="text-muted small">Xóa tất cả sách mẫu được tạo tự động bởi hệ thống.</p>
+                        <button onclick="deleteSampleBooks()" class="btn btn-warning"><i class="fas fa-book"></i> Xóa Sách Mẫu</button>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-shopping-cart text-danger"></i> Xóa Giỏ Hàng Admin</h6>
+                        <p class="text-muted small">Xóa tất cả sản phẩm trong giỏ hàng của tài khoản admin.</p>
+                        <button onclick="clearAdminCart()" class="btn btn-warning"><i class="fas fa-trash-alt"></i> Xóa Giỏ Hàng Admin</button>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-shopping-cart text-danger"></i> Xóa Tất Cả Giỏ Hàng</h6>
+                        <p class="text-muted small">Xóa giỏ hàng của tất cả users trong hệ thống.</p>
+                        <button onclick="clearAllCarts()" class="btn btn-warning"><i class="fas fa-trash-alt"></i> Xóa Tất Cả Giỏ Hàng</button>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-receipt text-danger"></i> Xóa Tất Cả Đơn Hàng</h6>
+                        <p class="text-muted small">Xóa tất cả đơn hàng trong hệ thống.</p>
+                        <button onclick="deleteAllOrders()" class="btn btn-warning"><i class="fas fa-file-invoice"></i> Xóa Tất Cả Đơn Hàng</button>
+                    </div>
+                    <hr>
+                    <div class="mb-3">
+                        <h6><i class="fas fa-broom text-danger"></i> Dọn Dẹp Toàn Bộ</h6>
+                        <p class="text-muted small">Thực hiện: xóa sách mẫu và xóa giỏ hàng admin.</p>
+                        <button onclick="fullCleanup()" class="btn btn-danger"><i class="fas fa-exclamation-triangle"></i> Dọn Dẹp Toàn Bộ</button>
+                    </div>
+                    <hr>
+                    <div class="alert alert-danger mb-0">
+                        <h6 class="alert-heading"><i class="fas fa-skull-crossbones"></i> NGUY HIỂM - Reset Database</h6>
+                        <p class="small mb-2">Xóa TOÀN BỘ dữ liệu: Sách, Giỏ hàng, Đơn hàng, Categories.</p>
+                        <p class="small mb-3"><strong>Giữ lại:</strong> Tất cả users/accounts (admin, user, v.v.)</p>
+                        <button onclick="resetDatabase()" class="btn btn-danger btn-lg"><i class="fas fa-database"></i> RESET DATABASE</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5><i class="fas fa-user-shield text-danger"></i> Fix Admin Role</h5>
+                    <p class="text-muted">Cập nhật quyền ADMIN cho user admin. Sau khi chạy cần logout và login lại.</p>
+                    <a href="/admin/fix-admin-role" class="btn btn-danger"><i class="fas fa-sync"></i> Fix Admin Role</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5><i class="fas fa-book text-success"></i> Reset Book IDs</h5>
+                    <p class="text-muted">Chuyển ID sách từ MongoDB ObjectId sang số đơn giản (1, 2, 3...)</p>
+                    <a href="/admin/books/reset-ids-get" class="btn btn-success"><i class="fas fa-sync"></i> Reset Book IDs</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="admin/sidebar :: scripts"></div>
+    <script>
+        function deleteSampleBooks() {
+            if (!confirm('Bạn có chắc chắn muốn xóa tất cả sách mẫu? Hành động này không thể hoàn tác!')) return;
+            fetch('/admin/cleanup/delete-sample-books').then(r => r.json()).then(d => { alert(d.success ? '✅ ' + d.message : '❌ Lỗi: ' + d.error); if(d.success) window.location.reload(); }).catch(e => alert('❌ Lỗi: ' + e.message));
+        }
+        function clearAdminCart() {
+            if (!confirm('Bạn có chắc chắn muốn xóa giỏ hàng của admin?')) return;
+            fetch('/admin/cleanup/clear-admin-cart').then(r => r.json()).then(d => alert(d.success ? '✅ ' + d.message : '❌ Lỗi: ' + d.error)).catch(e => alert('❌ Lỗi: ' + e.message));
+        }
+        function clearAllCarts() {
+            if (!confirm('⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa TẤT CẢ giỏ hàng của tất cả users?\n\nHành động này không thể hoàn tác!')) return;
+            fetch('/admin/cleanup/clear-all-carts').then(r => r.json()).then(d => alert(d.success ? '✅ ' + d.message : '❌ Lỗi: ' + d.error)).catch(e => alert('❌ Lỗi: ' + e.message));
+        }
+        function deleteAllOrders() {
+            if (!confirm('⚠️ CẢNH BÁO: Bạn có chắc chắn muốn xóa TẤT CẢ đơn hàng?\n\nHành động này không thể hoàn tác!')) return;
+            fetch('/admin/cleanup/delete-all-orders').then(r => r.json()).then(d => { alert(d.success ? '✅ ' + d.message : '❌ Lỗi: ' + d.error); if(d.success) window.location.reload(); }).catch(e => alert('❌ Lỗi: ' + e.message));
+        }
+        function fullCleanup() {
+            if (!confirm('Bạn có chắc chắn muốn thực hiện dọn dẹp toàn bộ?\n\n- Xóa tất cả sách mẫu\n- Xóa giỏ hàng admin\n\nHành động này không thể hoàn tác!')) return;
+            fetch('/admin/cleanup/full-cleanup').then(r => r.json()).then(d => { alert(d.success ? '✅ ' + d.message : '❌ Lỗi: ' + d.error); if(d.success) window.location.reload(); }).catch(e => alert('❌ Lỗi: ' + e.message));
+        }
+        function resetDatabase() {
+            if (!confirm('🚨 NGUY HIỂM - RESET DATABASE 🚨\n\nBạn có CHẮC CHẮN muốn xóa TOÀN BỘ dữ liệu?\n\nSẽ xóa:\n- Tất cả sách\n- Tất cả giỏ hàng\n- Tất cả đơn hàng\n- Tất cả categories\n\nGiữ lại:\n- Tất cả users/accounts\n\nHành động này KHÔNG THỂ HOÀN TÁC!')) return;
+            if (!confirm('⚠️ XÁC NHẬN LẦN 2 ⚠️\n\nBạn THỰC SỰ muốn reset database?\n\nĐây là cơ hội cuối cùng để hủy bỏ!')) return;
+            fetch('/admin/cleanup/reset-database').then(r => r.json()).then(d => { if(d.success) { alert('✅ ' + d.message + '\n\nĐã xóa:\n- Sách: ' + d.deleted.books + '\n- Giỏ hàng: ' + d.deleted.carts + '\n- Đơn hàng: ' + d.deleted.orders + '\n- Categories: ' + d.deleted.categories + '\n\n' + d.note); window.location.href = '/admin/dashboard'; } else { alert('❌ Lỗi: ' + d.error); } }).catch(e => alert('❌ Lỗi: ' + e.message));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đang xử lý thanh toán...</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 6px solid #f3f4f6;
+            border-top: 6px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 2rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+        }
+        
+        p {
+            color: #6b7280;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: #d1fae5;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            color: #10b981;
+        }
+        
+        .error-icon {
+            width: 80px;
+            height: 80px;
+            background: #fee2e2;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 3rem;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div th:if="${status == 'success'}">
+            <div class="success-icon">✓</div>
+            <h1>Thanh Toán Thành Công!</h1>
+            <p>Đơn hàng của bạn đã được xác nhận.<br>Đang chuyển hướng...</p>
+        </div>
+        
+        <div th:if="${status == 'failed'}">
+            <div class="error-icon">✕</div>
+            <h1>Thanh Toán Thất Bại</h1>
+            <p th:text="${message}">Có lỗi xảy ra trong quá trình thanh toán.</p>
+            <p>Đang chuyển hướng...</p>
+        </div>
+        
+        <div th:if="${status == 'processing'}">
+            <div class="spinner"></div>
+            <h1>Đang Xử Lý Thanh Toán...</h1>
+            <p>Vui lòng đợi trong giây lát.<br>Không đóng trang này.</p>
+        </div>
+    </div>
+    
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const status = /*[[${status}]]*/ 'processing';
+        const redirectUrl = /*[[${redirectUrl}]]*/ '/orders';
+        
+        console.log('Payment status:', status);
+        console.log('Redirect URL:', redirectUrl);
+        
+        // Redirect immediately
+        if (redirectUrl && redirectUrl !== '') {
+            console.log('Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+        } else {
+            console.error('No redirect URL provided!');
+            // Fallback redirect
+            window.location.href = '/orders';
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - FAHASA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #f8f9fa; min-height: 100vh; overflow-x: hidden; }
+        
+        .auth-section {
+            padding: 120px 0 80px;
+            min-height: 100vh;
+        }
+        
+        .auth-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 3rem;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+        
+        .auth-brand {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .auth-brand-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2.5rem;
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.35);
+        }
+        
+        .auth-brand-title {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .form-title { font-size: 1.5rem; font-weight: 700; color: #1a202c; margin-bottom: 0.5rem; }
+        .form-subtitle { color: #6b7280; font-size: 0.95rem; }
+        .form-subtitle a { color: #667eea; text-decoration: none; font-weight: 600; }
+        
+        .alert-box {
+            border-radius: 0.75rem;
+            padding: 1rem 1.25rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .alert-danger { background: #fee2e2; color: #991b1b; }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-label { font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block; }
+        
+        .input-wrapper { position: relative; }
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+            font-size: 1.125rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            color: #1a202c;
+            background-color: #fff;
+            transition: all 0.3s;
+        }
+        .form-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+            outline: none;
+        }
+        
+        .form-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .checkbox-wrapper { display: flex; align-items: center; gap: 0.5rem; }
+        .checkbox-input { width: 1.25rem; height: 1.25rem; cursor: pointer; }
+        .checkbox-label { color: #6b7280; cursor: pointer; }
+        .forgot-link { color: #667eea; text-decoration: none; font-weight: 500; font-size: 0.875rem; }
+        
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.35);
+        }
+        
+        .btn-google {
+            width: 100%;
+            background: white;
+            color: #3c4043;
+            border: 2px solid #dadce0;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            margin-bottom: 1rem;
+        }
+        .btn-google:hover {
+            background: #f8f9fa;
+            border-color: #dadce0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .btn-back {
+            width: 100%;
+            background: white;
+            color: #6b7280;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        .btn-back:hover {
+            border-color: #667eea;
+            color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-section">
+        <div class="container">
+            <div class="auth-card">
+                <div class="auth-brand">
+                    <div class="auth-brand-icon">
+                        <i class="fas fa-book-reader"></i>
+                    </div>
+                    <h1 class="auth-brand-title">FAHASA</h1>
+                </div>
+                
+                <div class="form-header mb-4">
+                    <h2 class="form-title">Đăng Nhập</h2>
+                    <p class="form-subtitle">
+                        Chưa có tài khoản? <a href="/register">Đăng ký ngay</a>
+                    </p>
+                </div>
+                
+                <div th:if="${param.error}" class="alert-box alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span>Tên đăng nhập hoặc mật khẩu không đúng!</span>
+                </div>
+                
+                <div th:if="${param.logout}" class="alert-box alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Đăng xuất thành công!</span>
+                </div>
+                
+                <form th:action="@{/login}" method="post">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="form-group">
+                        <label class="form-label">Tên đăng nhập</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text" class="form-input" name="username" placeholder="Nhập tên đăng nhập" required autofocus>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Mật khẩu</label>
+                        <div class="input-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password" class="form-input" name="password" placeholder="Nhập mật khẩu" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" class="checkbox-input" id="remember" name="remember-me">
+                            <label class="checkbox-label" for="remember">Ghi nhớ đăng nhập</label>
+                        </div>
+                        <a href="#" class="forgot-link">Quên mật khẩu?</a>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-sign-in-alt me-2"></i>Đăng Nhập
+                    </button>
+                </form>
+                
+                <!-- Divider -->
+                <div style="display: flex; align-items: center; margin: 1.5rem 0; gap: 1rem;">
+                    <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
+                    <span style="color: #6b7280; font-size: 0.875rem;">HOẶC</span>
+                    <div style="flex: 1; height: 1px; background: #e5e7eb;"></div>
+                </div>
+                
+                <!-- Google Login Button -->
+                <a href="/oauth2/authorization/google" class="btn-google">
+                    <svg width="18" height="18" viewBox="0 0 18 18" style="margin-right: 0.75rem;">
+                        <path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/>
+                        <path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/>
+                        <path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707 0-.593.102-1.17.282-1.709V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.335z"/>
+                        <path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z"/>
+                    </svg>
+                    Đăng Nhập Bằng Google
+                </a>
+                
+                <form>
+                    <a href="/" class="btn-back">
+                        <i class="fas fa-arrow-left me-2"></i>Quay Lại Trang Chủ
+                    </a>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

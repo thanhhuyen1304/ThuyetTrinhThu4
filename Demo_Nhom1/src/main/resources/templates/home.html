@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang Chủ - FAHASA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style th:replace="~{fragments/navbar :: navbar-styles}"></style>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: #f8f9fa; overflow-x: hidden; }
+        
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(-45deg, #667eea, #764ba2, #6B73C7, #8B5CF6, #667eea);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            padding: 160px 0 120px;
+            position: relative;
+            overflow: hidden;
+            margin-top: 72px;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.5;
+        }
+        
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(to top, #f8f9fa, transparent);
+            z-index: 2;
+        }
+        
+        .floating-shapes {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+        }
+        
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            animation: float 20s infinite ease-in-out;
+        }
+        
+        .shape-1 {
+            width: 300px;
+            height: 300px;
+            top: -50px;
+            left: -80px;
+            background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, transparent 70%);
+            animation-delay: 0s;
+        }
+        
+        .shape-2 {
+            width: 200px;
+            height: 200px;
+            top: 50%;
+            right: -50px;
+            background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
+            animation-delay: 3s;
+        }
+        
+        .shape-3 {
+            width: 250px;
+            height: 250px;
+            bottom: -60px;
+            left: 30%;
+            background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+            animation-delay: 6s;
+        }
+        
+        .shape-4 {
+            width: 150px;
+            height: 150px;
+            top: 20%;
+            right: 20%;
+            background: radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 70%);
+            animation-delay: 9s;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(-40px) scale(1.05);
+            }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 3;
+            color: white;
+            text-align: center;
+        }
+        
+        .hero-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1.25rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.6s ease;
+            color: rgba(255, 255, 255, 0.95);
+        }
+        
+        .hero-label i {
+            color: #fbbf24;
+        }
+        
+        .hero-title {
+            font-size: 3.8rem;
+            font-weight: 900;
+            margin-bottom: 1.5rem;
+            animation: fadeInUp 0.8s ease;
+            line-height: 1.15;
+            letter-spacing: -0.02em;
+        }
+        
+        .hero-title .highlight {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            50% { background-position: 100% center; }
+            100% { background-position: 0% center; }
+        }
+        
+        .hero-subtitle {
+            font-size: 1.25rem;
+            margin-bottom: 2.5rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease;
+            font-weight: 400;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.6;
+        }
+        
+        .hero-search {
+            max-width: 650px;
+            margin: 0 auto 2rem;
+            animation: fadeInUp 1.2s ease;
+        }
+        
+        .hero-search .input-group {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.2);
+            border-radius: 60px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .hero-search .input-group:focus-within {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.3), 0 0 0 4px rgba(255,255,255,0.1);
+        }
+        
+        .hero-search input {
+            height: 64px;
+            border: none;
+            font-size: 1.05rem;
+            padding: 0 2rem;
+            font-weight: 500;
+            background: transparent;
+            color: white;
+        }
+        
+        .hero-search input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .hero-search input:focus {
+            box-shadow: none;
+            outline: none;
+            background: transparent;
+            color: white;
+        }
+        
+        .hero-search button {
+            width: 140px;
+            font-weight: 700;
+            font-size: 1rem;
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            border: none;
+            transition: all 0.3s ease;
+            margin: 6px;
+            border-radius: 50px !important;
+            color: #1a202c;
+        }
+        
+        .hero-search button:hover {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            transform: scale(1.03);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+        }
+        
+        .hero-tags {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            animation: fadeInUp 1.4s ease;
+        }
+        
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .hero-tag:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .hero-tag i {
+            font-size: 0.7rem;
+            color: #fbbf24;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        
+        /* Stats Section */
+        .stats-section {
+            background: white;
+            padding: 4rem 0;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-label {
+            color: #6c757d;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        /* Section Title */
+        .section-title {
+            text-align: center;
+            margin-bottom: 4rem;
+            padding-top: 5rem;
+        }
+        
+        .section-title h2 {
+            font-size: 3rem;
+            font-weight: 900;
+            color: #1a202c;
+            margin-bottom: 1rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title h2::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 5px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 3px;
+        }
+        
+        .section-title p {
+            font-size: 1.2rem;
+            color: #6c757d;
+            margin-top: 1.5rem;
+            font-weight: 400;
+        }
+        
+        /* Book Card */
+        .book-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.18);
+        }
+        
+        .book-image-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 130%;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            cursor: pointer;
+        }
+        
+        .book-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+        
+        .book-card:hover .book-image {
+            transform: scale(1.05);
+        }
+        
+        .book-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2px 7px;
+            border-radius: 12px;
+            font-size: 0.55rem;
+            font-weight: 800;
+            box-shadow: 0 2px 6px rgba(102, 126, 234, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+            z-index: 10;
+        }
+        
+        .book-badge.stock {
+            background: rgba(255,255,255,0.95);
+            color: #10b981;
+        }
+        
+        .book-badge.out-of-stock {
+            background: rgba(255,255,255,0.95);
+            color: #ef4444;
+        }
+        
+        .book-content {
+            padding: 0.75rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+        
+        .book-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #1a202c;
+            margin: 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.25;
+            min-height: 2.125rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .book-title:hover {
+            color: #667eea;
+        }
+        
+        .book-author {
+            color: #6c757d;
+            font-size: 0.7rem;
+            margin: 0;
+            font-weight: 500;
+            display: -webkit-box;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .book-rating {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin: 0.1rem 0;
+        }
+        
+        .stars {
+            color: #fbbf24;
+            font-size: 0.7rem;
+            display: flex;
+            gap: 1px;
+        }
+        
+        .rating-count {
+            color: #9ca3af;
+            font-size: 0.6rem;
+            font-weight: 600;
+        }
+        
+        .book-footer {
+            margin-top: auto;
+            padding-top: 0.4rem;
+            border-top: 1px solid #f3f4f6;
+        }
+        
+        .book-price {
+            font-size: 1.15rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            margin-bottom: 0.45rem;
+        }
+        
+        .book-actions {
+            display: flex;
+            gap: 0.4rem;
+        }
+        
+        .btn-add-cart {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 0.5rem 0.7rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.25);
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+        
+        .btn-add-cart:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.35);
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+        }
+        
+        .btn-add-cart:active {
+            transform: translateY(0);
+        }
+        
+        .btn-add-cart i {
+            font-size: 0.85rem;
+        }
+        
+        .btn-view-detail {
+            background: white;
+            color: #667eea;
+            border: 1.5px solid #667eea;
+            padding: 0.5rem 0.7rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.7rem;
+            transition: all 0.3s ease;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .btn-view-detail:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.25);
+        }
+        
+        .btn-view-detail i {
+            font-size: 0.85rem;
+        }
+        
+        /* Features */
+        .features-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 5rem 0;
+            color: white;
+        }
+        
+        .feature-item {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+        
+        .feature-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+        
+        .feature-desc {
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .footer {
+            background: #1a202c;
+            color: white;
+            padding: 3rem 0 1.5rem;
+        }
+        
+        .footer-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-link {
+            color: rgba(255,255,255,0.7);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.5rem;
+            transition: color 0.3s;
+        }
+        
+        .footer-link:hover {
+            color: white;
+        }
+        
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            text-align: center;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .hero-subtitle {
+                font-size: 1rem;
+            }
+            
+            .section-title h2 {
+                font-size: 2rem;
+            }
+            
+            .navbar-menu {
+                display: none;
+            }
+            
+            .navbar-container {
+                padding: 1rem;
+            }
+            
+            .navbar-username {
+                display: none;
+            }
+            
+            .hero-search input {
+                height: 55px;
+                font-size: 1rem;
+            }
+            
+            .hero-search button {
+                width: 100px;
+                font-size: 1rem;
+            }
+            
+            .stat-number {
+                font-size: 2rem;
+            }
+            
+            .stat-label {
+                font-size: 0.9rem;
+            }
+            .book-card {
+                flex-direction: column;
+            }
+            
+            .book-image-wrapper {
+                width: 100%;
+                padding-top: 130%;
+            }
+            
+            .book-content {
+                padding: 0.65rem;
+            }
+            
+            .book-title {
+                font-size: 0.8rem;
+                min-height: 2rem;
+            }
+            
+            .book-author {
+                font-size: 0.65rem;
+            }
+            
+            .book-price {
+                font-size: 1rem;
+            }
+            
+            .btn-add-cart, .btn-view-detail {
+                padding: 0.45rem 0.6rem;
+                font-size: 0.65rem;
+            }
+            
+            .btn-add-cart i, .btn-view-detail i {
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .navbar-menu {
+                gap: 1rem;
+            }
+            
+            .navbar-link {
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav th:replace="~{fragments/navbar :: navbar}"></nav>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+        </div>
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-label">
+                    <i class="fas fa-fire"></i>
+                    <span>Hơn <span th:text="${totalItems ?: '1000'}">1000</span>+ đầu sách đang chờ bạn</span>
+                </div>
+                <h1 class="hero-title">Khám Phá <span class="highlight">Thế Giới Sách</span></h1>
+                <p class="hero-subtitle">Hàng ngàn đầu sách chất lượng từ các nhà xuất bản hàng đầu, giao hàng nhanh chóng toàn quốc</p>
+                <div class="hero-search">
+                    <form method="get" action="/">
+                        <div class="input-group input-group-lg">
+                            <input type="text" class="form-control" name="keyword" placeholder="Tìm kiếm sách, tác giả, thể loại..." th:value="${keyword}">
+                            <button class="btn btn-warning" type="submit">
+                                <i class="fas fa-search me-2"></i>Tìm
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="hero-tags">
+                    <a href="/books?category=Programming" class="hero-tag"><i class="fas fa-circle"></i> Lập trình</a>
+                    <a href="/books?category=Business" class="hero-tag"><i class="fas fa-circle"></i> Kinh doanh</a>
+                    <a href="/books?category=Science" class="hero-tag"><i class="fas fa-circle"></i> Khoa học</a>
+                    <a href="/books?category=Literature" class="hero-tag"><i class="fas fa-circle"></i> Văn học</a>
+                    <a href="/books" class="hero-tag"><i class="fas fa-arrow-right"></i> Xem tất cả</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Stats Section -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number" th:text="${totalItems ?: '1000+'}">1000+</div>
+                        <div class="stat-label">Đầu Sách</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">500+</div>
+                        <div class="stat-label">Tác Giả</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">Khách Hàng</div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-item">
+                        <div class="stat-number">4.8★</div>
+                        <div class="stat-label">Đánh Giá</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Books Section -->
+    <section class="container mb-5">
+        <div class="section-title">
+            <h2>Sách Nổi Bật</h2>
+            <p>Những cuốn sách được yêu thích nhất</p>
+        </div>
+        
+        <div class="row g-3">
+            <div class="col-lg-2 col-md-3 col-sm-4 col-6" th:each="book, iterStat : ${books}">
+                <div class="book-card">
+                    <div class="book-image-wrapper" th:data-book-id="${book.id}" onclick="goToDetail(this)">
+                        <img th:src="${book.imageUrl}" class="book-image" th:alt="${book.title}">
+                        <span th:if="${iterStat.index < 3}" class="book-badge">Mới</span>
+                        <span th:if="${iterStat.index >= 3 and book.stockQuantity > 0}" class="book-badge stock">Còn</span>
+                        <span th:if="${book.stockQuantity <= 0}" class="book-badge out-of-stock">Hết</span>
+                    </div>
+                    <div class="book-content">
+                        <h3 class="book-title" th:text="${book.title}" th:data-book-id="${book.id}" onclick="goToDetail(this)">Book Title</h3>
+                        <p class="book-author" th:text="${book.author}">Author</p>
+                        
+                        <div class="book-rating" th:if="${book.totalReviews != null and book.totalReviews > 0}">
+                            <div class="stars">
+                                <i th:each="i : ${#numbers.sequence(1, 5)}" 
+                                   th:class="${i <= (book.averageRating ?: 0) ? 'fas fa-star' : 'far fa-star'}"></i>
+                            </div>
+                            <span class="rating-count" th:text="'(' + ${book.totalReviews} + ')'">(0)</span>
+                        </div>
+                        
+                        <div class="book-footer">
+                            <div class="book-price" th:text="${book.price != null ? #numbers.formatInteger(book.price, 1, 'POINT') + 'đ' : 'N/A'}">100.000đ</div>
+                            
+                            <div class="book-actions">
+                                <!-- Admin: Sửa + Xem -->
+                                <a sec:authorize="hasRole('ADMIN')" 
+                                   th:href="@{/admin/books/edit/{id}(id=${book.id})}" 
+                                   class="btn-add-cart" 
+                                   style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25); text-decoration: none;"
+                                   onclick="event.stopPropagation()">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                
+                                <!-- User (không phải admin): Thêm giỏ hàng -->
+                                <button sec:authorize="hasRole('USER') and !hasRole('ADMIN')" 
+                                        th:if="${book.stockQuantity > 0}"
+                                        class="btn-add-cart"
+                                        th:data-book-id="${book.id}"
+                                        onclick="handleAddToCart(this, event)">
+                                    <i class="fas fa-cart-plus"></i>
+                                </button>
+                                
+                                <!-- Chưa đăng nhập: Đăng nhập -->
+                                <button sec:authorize="!isAuthenticated()" 
+                                        th:if="${book.stockQuantity > 0}"
+                                        class="btn-add-cart"
+                                        onclick="event.stopPropagation(); window.location.href='/login'">
+                                    <i class="fas fa-sign-in-alt"></i>
+                                </button>
+                                
+                                <a th:href="@{/books/detail(id=${book.id})}" class="btn-view-detail" onclick="event.stopPropagation()">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-5">
+            <a href="/books" class="btn btn-lg btn-primary px-5">
+                Xem Tất Cả Sách <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features-section">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shipping-fast"></i>
+                        </div>
+                        <h3 class="feature-title">Giao Hàng Nhanh</h3>
+                        <p class="feature-desc">Giao hàng toàn quốc trong 2-3 ngày</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <h3 class="feature-title">Thanh Toán An Toàn</h3>
+                        <p class="feature-desc">Bảo mật thông tin 100%</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-undo"></i>
+                        </div>
+                        <h3 class="feature-title">Đổi Trả Dễ Dàng</h3>
+                        <p class="feature-desc">Đổi trả trong vòng 7 ngày</p>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-headset"></i>
+                        </div>
+                        <h3 class="feature-title">Hỗ Trợ 24/7</h3>
+                        <p class="feature-desc">Luôn sẵn sàng hỗ trợ bạn</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4">
+                    <h3 class="footer-title">
+                        <i class="fas fa-book-reader me-2"></i>FAHASA
+                    </h3>
+                    <p class="text-white-50">
+                        Nơi kết nối bạn với hàng ngàn đầu sách chất lượng từ khắp nơi trên thế giới.
+                    </p>
+                </div>
+                <div class="col-md-2">
+                    <h4 class="footer-title">Về Chúng Tôi</h4>
+                    <a href="#" class="footer-link">Giới Thiệu</a>
+                    <a href="#" class="footer-link">Liên Hệ</a>
+                    <a href="#" class="footer-link">Tuyển Dụng</a>
+                </div>
+                <div class="col-md-2">
+                    <h4 class="footer-title">Hỗ Trợ</h4>
+                    <a href="#" class="footer-link">Hướng Dẫn</a>
+                    <a href="#" class="footer-link">Chính Sách</a>
+                    <a href="#" class="footer-link">Điều Khoản</a>
+                </div>
+                <div class="col-md-4">
+                    <h4 class="footer-title">Theo Dõi Chúng Tôi</h4>
+                    <div class="d-flex gap-3">
+                        <a href="#" class="footer-link"><i class="fab fa-facebook fa-2x"></i></a>
+                        <a href="#" class="footer-link"><i class="fab fa-instagram fa-2x"></i></a>
+                        <a href="#" class="footer-link"><i class="fab fa-twitter fa-2x"></i></a>
+                        <a href="#" class="footer-link"><i class="fab fa-youtube fa-2x"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 FAHASA. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <div th:replace="~{fragments/navbar :: navbar-scripts}"></div>
+    <script>
+        // Go to book detail page
+        function goToDetail(element) {
+            const bookId = element.getAttribute('data-book-id');
+            if (bookId) {
+                window.location.href = '/books/detail?id=' + bookId;
+            }
+        }
+        
+        // Handle add to cart with event stop
+        function handleAddToCart(element, event) {
+            event.stopPropagation();
+            const bookId = element.getAttribute('data-book-id');
+            if (bookId) {
+                addToCart(bookId);
+            }
+        }
+        
+        function addToCart(bookId) {
+            fetch('/api/cart/add', {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ bookId: bookId, quantity: 1 })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(err => { throw new Error(err.message); });
+                }
+                return response.json();
+            })
+            .then(data => {
+                showSuccess('Đã thêm vào giỏ hàng!');
+                updateCartBadge();
+            })
+            .catch(error => showError(error.message || 'Có lỗi xảy ra!'));
+        }
+    </script>
+</body>
+</html>

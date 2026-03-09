@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .order-info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        .order-item {
+            border-bottom: 1px solid #e0e0e0;
+            padding: 15px 0;
+        }
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        .total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #667eea;
+            text-align: right;
+            margin-top: 20px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 BookStore</h1>
+        <h2>Xác Nhận Đơn Hàng</h2>
+    </div>
+    
+    <div class="content">
+        <p>Xin chào <strong th:text="${order.username}">Customer</strong>,</p>
+        
+        <p>Cảm ơn bạn đã đặt hàng tại BookStore! Đơn hàng của bạn đã được xác nhận và đang được xử lý.</p>
+        
+        <div class="order-info">
+            <h3>Thông Tin Đơn Hàng</h3>
+            <p><strong>Mã đơn hàng:</strong> #<span th:text="${orderIdShort}">ORDER123</span></p>
+            <p><strong>Ngày đặt:</strong> <span th:text="${formattedDate}">01/01/2024</span></p>
+            <p><strong>Địa chỉ giao hàng:</strong> <span th:text="${order.shippingAddress}">Address</span></p>
+            <p><strong>Số điện thoại:</strong> <span th:text="${order.phone}">Phone</span></p>
+            <p><strong>Phương thức thanh toán:</strong> <span th:text="${order.paymentMethod}">COD</span></p>
+        </div>
+        
+        <div class="order-info">
+            <h3>Sản Phẩm</h3>
+            <div th:each="item : ${order.items}" class="order-item">
+                <p><strong th:text="${item.bookTitle}">Book Title</strong></p>
+                <p>Số lượng: <span th:text="${item.quantity}">1</span> × <span th:text="${item.price}">100,000</span> VND</p>
+                <p><strong>Tạm tính: <span th:text="${item.subtotal}">100,000</span> VND</strong></p>
+            </div>
+            
+            <div class="total">
+                Tổng cộng: <span th:text="${formattedTotal}">0 VND</span>
+            </div>
+        </div>
+        
+        <p>Chúng tôi sẽ thông báo cho bạn khi đơn hàng được giao.</p>
+        
+        <center>
+            <a href="http://localhost:8080/orders" class="button">Xem Đơn Hàng</a>
+        </center>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 BookStore. All rights reserved.</p>
+        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+    </div>
+</body>
+</html>

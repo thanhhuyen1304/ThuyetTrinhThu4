@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn Hàng - FAHASA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <th:block th:insert="~{fragments/navbar :: navbar-styles}"></th:block>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f8f9fa;
+            overflow-x: hidden;
+        }
+        
+        .orders-container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        
+        /* Breadcrumb */
+        .breadcrumb-modern {
+            background: white;
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .breadcrumb-modern a {
+            color: #667eea;
+            text-decoration: none;
+        }
+        
+        .breadcrumb-modern a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Page Header */
+        .page-header {
+            background: white;
+            padding: 2rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        /* Filter Tabs */
+        .filter-tabs {
+            background: white;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+        }
+        
+        .filter-tab {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            background: white;
+            color: #6b7280;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .filter-tab:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+        
+        .filter-tab.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        /* Order Card */
+        .order-card {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .order-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+            margin-bottom: 1rem;
+        }
+        
+        .order-id {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .order-date {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        
+        .order-status {
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        
+        .status-PENDING {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-CONFIRMED {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-SHIPPED {
+            background: #e0e7ff;
+            color: #3730a3;
+        }
+        
+        .status-DELIVERED {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-CANCELLED {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        /* Order Items */
+        .order-items {
+            margin-bottom: 1rem;
+        }
+        
+        .order-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        .order-item:last-child {
+            border-bottom: none;
+        }
+        
+        .item-image {
+            width: 60px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .item-quantity {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .item-price {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1rem;
+        }
+        
+        /* Order Footer */
+        .order-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 1rem;
+            border-top: 2px solid #f3f4f6;
+        }
+        
+        .order-total {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        
+        .total-label {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .total-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-detail {
+            padding: 0.625rem 1.25rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-detail:hover {
+            background: #764ba2;
+        }
+        
+        .btn-cancel {
+            padding: 0.625rem 1.25rem;
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-cancel:hover {
+            background: #fecaca;
+        }
+        
+        .btn-refresh {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-refresh:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-refresh i.fa-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        /* Empty State */
+        .empty-orders {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .empty-icon {
+            font-size: 5rem;
+            color: #d1d5db;
+            margin-bottom: 1.5rem;
+        }
+        
+        .empty-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.75rem;
+        }
+        
+        .empty-text {
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+        
+        .btn-shop {
+            background: #667eea;
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-shop:hover {
+            background: #764ba2;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        /* Loading */
+        .loading-container {
+            background: white;
+            border-radius: 0.75rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes highlight {
+            0%, 100% { 
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+                transform: scale(1);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(102, 126, 234, 0.6);
+                transform: scale(1.02);
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 0.75rem;
+            }
+            
+            .order-footer {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+            
+            .order-total {
+                align-items: flex-start;
+            }
+            
+            .order-actions {
+                width: 100%;
+            }
+            
+            .btn-detail, .btn-cancel {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav th:insert="~{fragments/navbar :: navbar}"></nav>
+    
+    <div class="orders-container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb-modern">
+            <a href="/"><i class="fas fa-home"></i> Trang Chủ</a>
+            <span class="mx-2">/</span>
+            <span>Đơn Hàng</span>
+        </div>
+        
+        <!-- Page Header -->
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1 class="page-title">
+                    <i class="fas fa-box"></i>
+                    Đơn Hàng Của Tôi
+                </h1>
+                <p style="color: #6b7280; margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                    <i class="fas fa-sync-alt" style="color: #10b981;"></i>
+                    Tự động cập nhật mỗi 30 giây
+                </p>
+            </div>
+            <button onclick="refreshOrders()" class="btn-refresh">
+                <i class="fas fa-sync-alt"></i>
+                <span>Làm Mới</span>
+            </button>
+        </div>
+        
+        <!-- Filter Tabs -->
+        <div class="filter-tabs">
+            <button class="filter-tab active" onclick="filterOrders('ALL')">
+                <i class="fas fa-list me-2"></i>Tất cả
+            </button>
+            <button class="filter-tab" onclick="filterOrders('PENDING')">
+                <i class="fas fa-clock me-2"></i>Chờ xử lý
+            </button>
+            <button class="filter-tab" onclick="filterOrders('CONFIRMED')">
+                <i class="fas fa-check-circle me-2"></i>Đã xác nhận
+            </button>
+            <button class="filter-tab" onclick="filterOrders('SHIPPED')">
+                <i class="fas fa-shipping-fast me-2"></i>Đang giao
+            </button>
+            <button class="filter-tab" onclick="filterOrders('DELIVERED')">
+                <i class="fas fa-box-open me-2"></i>Đã giao
+            </button>
+            <button class="filter-tab" onclick="filterOrders('CANCELLED')">
+                <i class="fas fa-times-circle me-2"></i>Đã hủy
+            </button>
+        </div>
+        
+        <!-- Loading -->
+        <div id="loading" class="loading-container">
+            <div class="spinner"></div>
+            <p style="color: #6b7280; font-weight: 500;">Đang tải đơn hàng...</p>
+        </div>
+        
+        <!-- Orders List -->
+        <div id="ordersList" style="display: none;"></div>
+        
+        <!-- Empty State -->
+        <div id="emptyOrders" class="empty-orders" style="display: none;">
+            <i class="fas fa-box-open empty-icon"></i>
+            <h2 class="empty-title">Chưa Có Đơn Hàng</h2>
+            <p class="empty-text">Bạn chưa có đơn hàng nào. Hãy khám phá và đặt hàng ngay!</p>
+            <a href="/books" class="btn-shop">
+                <i class="fas fa-book"></i>
+                <span>Khám Phá Sách</span>
+            </a>
+        </div>
+    </div>
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block th:insert="~{fragments/navbar :: navbar-scripts}"></th:block>
+    <script>
+        let allOrders = [];
+        let currentFilter = 'ALL';
+        
+        const statusLabels = {
+            'PENDING': 'Chờ xử lý',
+            'CONFIRMED': 'Đã xác nhận',
+            'SHIPPED': 'Đang giao hàng',
+            'DELIVERED': 'Đã giao hàng',
+            'CANCELLED': 'Đã hủy'
+        };
+        
+        function refreshOrders() {
+            const btn = event.target.closest('.btn-refresh');
+            const icon = btn.querySelector('i');
+            icon.classList.add('fa-spin');
+            
+            loadOrders();
+            
+            setTimeout(() => {
+                icon.classList.remove('fa-spin');
+                showNotification('✅ Đã làm mới danh sách đơn hàng', 'success');
+            }, 1000);
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check for payment status in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const paymentStatus = urlParams.get('payment');
+            const orderId = urlParams.get('orderId');
+
+            // If this page was opened as /orders/delivered, auto-filter to DELIVERED
+            if (window.location.pathname && window.location.pathname.endsWith('/delivered')) {
+                currentFilter = 'DELIVERED';
+                // Update header title
+                const titleElem = document.querySelector('.page-title');
+                if (titleElem) titleElem.innerHTML = '<i class="fas fa-history"></i> Lịch Sử Giao Hàng';
+                // Set Delivered tab active if exists
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                    if (tab.textContent && tab.textContent.trim().toUpperCase().includes('ĐÃ GIAO')) {
+                        tab.classList.add('active');
+                    }
+                });
+            }
+            
+            if (paymentStatus === 'success') {
+                showNotification('✅ Thanh toán thành công! Đơn hàng của bạn đang được xử lý.', 'success');
+                
+                // Nếu có orderId, tự động scroll và highlight đơn hàng đó
+                if (orderId) {
+                    setTimeout(() => {
+                        const orderCard = document.querySelector(`[data-order-id="${orderId}"]`);
+                        if (orderCard) {
+                            orderCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            orderCard.style.animation = 'highlight 2s ease-in-out';
+                        }
+                    }, 1000);
+                }
+                
+                // Remove query params from URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (paymentStatus === 'failed') {
+                const message = urlParams.get('message') || 'Thanh toán thất bại';
+                showNotification('❌ ' + decodeURIComponent(message), 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else if (paymentStatus === 'error') {
+                const message = urlParams.get('message') || 'Có lỗi xảy ra';
+                showNotification('⚠️ ' + decodeURIComponent(message), 'error');
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+            
+            loadOrders();
+            
+            // Auto-refresh every 30 seconds to check for status updates
+            setInterval(function() {
+                loadOrders();
+                console.log('Auto-refreshed orders at ' + new Date().toLocaleTimeString());
+            }, 30000);
+        });
+        
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 100px;
+                right: 20px;
+                padding: 1rem 1.5rem;
+                background: ${type === 'success' ? '#10b981' : '#ef4444'};
+                color: white;
+                border-radius: 0.5rem;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+                z-index: 9999;
+                font-weight: 500;
+                animation: slideIn 0.3s ease-out;
+            `;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }, 5000);
+        }
+        
+        function loadOrders() {
+            fetch('/api/orders?all=true')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load orders');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Orders data:', data);
+                    // Handle both array and object responses
+                    if (Array.isArray(data)) {
+                        allOrders = data;
+                    } else if (data && Array.isArray(data.orders)) {
+                        allOrders = data.orders;
+                    } else if (data && typeof data === 'object') {
+                        // If it's a single object, wrap it in an array
+                        allOrders = [data];
+                    } else {
+                        allOrders = [];
+                    }
+                    displayOrders();
+                })
+                .catch(error => {
+                    console.error('Error loading orders:', error);
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('emptyOrders').style.display = 'block';
+                    document.getElementById('emptyOrders').innerHTML = `
+                        <i class="fas fa-exclamation-triangle empty-icon" style="color: #dc2626;"></i>
+                        <h2 class="empty-title">Lỗi Tải Đơn Hàng</h2>
+                        <p class="empty-text">Không thể tải danh sách đơn hàng. Vui lòng thử lại sau.</p>
+                        <button class="btn-shop" onclick="loadOrders()">
+                            <i class="fas fa-redo"></i>
+                            <span>Thử Lại</span>
+                        </button>
+                    `;
+                });
+        }
+        
+        function displayOrders() {
+            document.getElementById('loading').style.display = 'none';
+            
+            let filteredOrders = allOrders;
+            if (currentFilter !== 'ALL') {
+                filteredOrders = allOrders.filter(order => order.status === currentFilter);
+            }
+            
+            if (filteredOrders.length === 0) {
+                document.getElementById('emptyOrders').style.display = 'block';
+                document.getElementById('ordersList').style.display = 'none';
+                return;
+            }
+            
+            document.getElementById('emptyOrders').style.display = 'none';
+            document.getElementById('ordersList').style.display = 'block';
+            
+            const ordersHtml = filteredOrders.map(order => `
+                <div class="order-card" data-order-id="${order.id}">
+                    <div class="order-header">
+                        <div>
+                            <div class="order-id">
+                                <i class="fas fa-hashtag"></i> ${order.id}
+                            </div>
+                            <div class="order-date">
+                                <i class="fas fa-calendar me-1"></i>
+                                ${formatDate(order.orderDate)}
+                            </div>
+                        </div>
+                        <span class="order-status status-${order.status}">
+                            ${statusLabels[order.status] || order.status}
+                        </span>
+                    </div>
+                    
+                    <div class="order-items">
+                        ${order.items.map(item => `
+                            <div class="order-item">
+                                <img src="${item.imageUrl || 'https://via.placeholder.com/60x80?text=No+Image'}" 
+                                     alt="${item.bookTitle}" 
+                                     class="item-image">
+                                <div class="item-info">
+                                    <div class="item-title">${item.bookTitle}</div>
+                                    <div class="item-quantity">Số lượng: ${item.quantity}</div>
+                                </div>
+                                <div class="item-price">${formatPrice(item.price * item.quantity)} VND</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="order-footer">
+                        <div class="order-total">
+                            <span class="total-label">Tổng cộng:</span>
+                            <span class="total-value">${formatPrice(order.totalAmount)} VND</span>
+                        </div>
+                        <div class="order-actions">
+                            <button class="btn-detail" onclick="viewOrderDetail('${order.id}')">
+                                <i class="fas fa-eye me-1"></i> Chi Tiết
+                            </button>
+                            ${order.status === 'PENDING' ? `
+                                <button class="btn-cancel" onclick="cancelOrder('${order.id}')">
+                                    <i class="fas fa-times me-1"></i> Hủy
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('ordersList').innerHTML = ordersHtml;
+        }
+        
+        function filterOrders(status) {
+            currentFilter = status;
+            
+            // Update active tab
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.closest('.filter-tab').classList.add('active');
+            
+            displayOrders();
+        }
+        
+        function viewOrderDetail(orderId) {
+            window.location.href = '/orders/detail?id=' + orderId;
+        }
+        
+        function cancelOrder(orderId) {
+            if (!confirm('Bạn có chắc muốn hủy đơn hàng này?')) {
+                return;
+            }
+            
+            fetch(`/api/orders/${orderId}/cancel`, {
+                method: 'PUT'
+            })
+            .then(response => {
+                if (!response.ok) throw new Error('Cancel failed');
+                return response.json();
+            })
+            .then(data => {
+                showSuccess('Đã hủy đơn hàng thành công!');
+                loadOrders();
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showError('Có lỗi xảy ra khi hủy đơn hàng!');
+            });
+        }
+        
+        function formatPrice(price) {
+            return price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+    </script>
+</body>
+</html>

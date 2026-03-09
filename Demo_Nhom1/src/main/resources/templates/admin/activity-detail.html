@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi Tiết Hoạt Động - FAHASA Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <th:block th:insert="~{admin/layout :: admin-styles}"></th:block>
+    <style>
+        .page-title {
+            color: white !important;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            -webkit-text-fill-color: white !important;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 500;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .detail-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .info-row {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #667eea;
+            width: 200px;
+            flex-shrink: 0;
+        }
+        
+        .info-value {
+            color: #4b5563;
+            flex: 1;
+        }
+        
+        .action-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 10px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        
+        .action-badge.create {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+        
+        .action-badge.update {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white;
+        }
+        
+        .action-badge.delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .action-badge.view {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .related-activity {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s;
+        }
+        
+        .related-activity:hover {
+            background: #f3f4f6;
+            transform: translateX(5px);
+        }
+    </style>
+</head>
+<body>
+    <th:block th:insert="~{admin/layout :: admin-navbar}"></th:block>
+    <th:block th:insert="~{admin/layout :: admin-sidebar(activePage='activities')}"></th:block>
+    
+    <div class="admin-content">
+        <div class="mb-4">
+            <a href="/admin/activities" class="btn btn-outline-light" style="border-radius: 10px;">
+                <i class="fas fa-arrow-left me-2"></i>Quay lại
+            </a>
+        </div>
+        
+        <div class="mb-5">
+            <h1 class="page-title">
+                <i class="fas fa-info-circle me-3"></i>Chi Tiết Hoạt Động
+            </h1>
+            <p class="page-subtitle">Thông tin chi tiết về hoạt động của admin</p>
+        </div>
+        
+        <!-- Activity Detail Card -->
+        <div class="detail-card">
+            <h4 class="mb-4" style="color: #1f2937; font-weight: 700;">
+                <i class="fas fa-clipboard-list me-2"></i>Thông Tin Hoạt Động
+            </h4>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-hashtag me-2"></i>ID
+                </div>
+                <div class="info-value">
+                    <code th:text="${activity.id}">ID</code>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-bolt me-2"></i>Hành Động
+                </div>
+                <div class="info-value">
+                    <span class="action-badge" 
+                          th:classappend="${activity.action == 'CREATE' ? 'create' : 
+                                         activity.action == 'UPDATE' ? 'update' : 
+                                         activity.action == 'DELETE' ? 'delete' : 'view'}"
+                          th:text="${activity.action}">ACTION</span>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-layer-group me-2"></i>Loại Đối Tượng
+                </div>
+                <div class="info-value">
+                    <span class="badge bg-secondary" style="font-size: 0.9rem; padding: 0.5rem 1rem;" 
+                          th:text="${activity.entityType}">TYPE</span>
+                </div>
+            </div>
+            
+            <div class="info-row" th:if="${activity.entityId != null}">
+                <div class="info-label">
+                    <i class="fas fa-fingerprint me-2"></i>ID Đối Tượng
+                </div>
+                <div class="info-value">
+                    <code th:text="${activity.entityId}">Entity ID</code>
+                </div>
+            </div>
+            
+            <div class="info-row" th:if="${activity.entityName != null}">
+                <div class="info-label">
+                    <i class="fas fa-tag me-2"></i>Tên Đối Tượng
+                </div>
+                <div class="info-value">
+                    <strong th:text="${activity.entityName}">Entity Name</strong>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-align-left me-2"></i>Mô Tả
+                </div>
+                <div class="info-value" th:text="${activity.description}">Description</div>
+            </div>
+            
+            <!-- Changes Section for UPDATE actions -->
+            <div th:if="${activity.action == 'UPDATE' and (activity.oldValue != null or activity.newValue != null)}" 
+                 style="background: #f9fafb; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                <h5 style="color: #1f2937; font-weight: 700; margin-bottom: 1rem;">
+                    <i class="fas fa-exchange-alt me-2" style="color: #3b82f6;"></i>Nội Dung Thay Đổi
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6" th:if="${activity.oldValue != null}">
+                        <div style="background: #fee2e2; border-left: 4px solid #ef4444; padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: 600; color: #991b1b; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                                <i class="fas fa-minus-circle me-1"></i>GIÁ TRỊ CŨ
+                            </div>
+                            <div style="color: #7f1d1d; word-wrap: break-word; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9rem;" 
+                                 th:text="${activity.oldValue}">Old Value</div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6" th:if="${activity.newValue != null}">
+                        <div style="background: #d1fae5; border-left: 4px solid #10b981; padding: 1rem; border-radius: 8px;">
+                            <div style="font-weight: 600; color: #065f46; margin-bottom: 0.5rem; font-size: 0.875rem;">
+                                <i class="fas fa-plus-circle me-1"></i>GIÁ TRỊ MỚI
+                            </div>
+                            <div style="color: #064e3b; word-wrap: break-word; white-space: pre-wrap; font-family: 'Courier New', monospace; font-size: 0.9rem;" 
+                                 th:text="${activity.newValue}">New Value</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Visual comparison for single-line changes -->
+                <div th:if="${activity.oldValue != null and activity.newValue != null and 
+                            !#strings.contains(activity.oldValue, '\n') and !#strings.contains(activity.newValue, '\n')}" 
+                     class="mt-3 text-center">
+                    <div style="display: inline-flex; align-items: center; gap: 1rem; background: white; padding: 1rem 1.5rem; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <span style="color: #ef4444; font-weight: 600; text-decoration: line-through;" th:text="${activity.oldValue}">Old</span>
+                        <i class="fas fa-arrow-right" style="color: #6b7280;"></i>
+                        <span style="color: #10b981; font-weight: 600;" th:text="${activity.newValue}">New</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Metadata Section -->
+            <div th:if="${activity.metadata != null and !activity.metadata.isEmpty()}" 
+                 style="background: #eff6ff; border-radius: 12px; padding: 1.5rem; margin: 1rem 0;">
+                <h5 style="color: #1f2937; font-weight: 700; margin-bottom: 1rem;">
+                    <i class="fas fa-info-circle me-2" style="color: #3b82f6;"></i>Thông Tin Bổ Sung
+                </h5>
+                <div class="row g-2">
+                    <div class="col-md-6" th:each="entry : ${activity.metadata}">
+                        <div style="background: white; padding: 0.75rem; border-radius: 8px; border-left: 3px solid #3b82f6;">
+                            <div style="font-size: 0.75rem; color: #6b7280; text-transform: uppercase; font-weight: 600; margin-bottom: 0.25rem;" 
+                                 th:text="${entry.key}">Key</div>
+                            <div style="color: #1f2937; font-weight: 500;" th:text="${entry.value}">Value</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-user-shield me-2"></i>Admin
+                </div>
+                <div class="info-value">
+                    <strong th:text="${activity.adminUsername}">Admin</strong>
+                </div>
+            </div>
+            
+            <div class="info-row" th:if="${activity.ipAddress != null}">
+                <div class="info-label">
+                    <i class="fas fa-map-marker-alt me-2"></i>Địa Chỉ IP
+                </div>
+                <div class="info-value">
+                    <code th:text="${activity.ipAddress}">IP Address</code>
+                </div>
+            </div>
+            
+            <div class="info-row" th:if="${activity.userAgent != null}">
+                <div class="info-label">
+                    <i class="fas fa-desktop me-2"></i>User Agent
+                </div>
+                <div class="info-value">
+                    <small th:text="${activity.userAgent}">User Agent</small>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="info-label">
+                    <i class="fas fa-clock me-2"></i>Thời Gian
+                </div>
+                <div class="info-value">
+                    <strong th:text="${#temporals.format(activity.timestamp, 'dd/MM/yyyy HH:mm:ss')}">Timestamp</strong>
+                    <br>
+                    <small class="text-muted" th:text="${#temporals.format(activity.timestamp, 'EEEE', new java.util.Locale('vi', 'VN'))}">Day</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Related Activities -->
+        <div class="detail-card" th:if="${!#lists.isEmpty(relatedActivities)}">
+            <h4 class="mb-4" style="color: #1f2937; font-weight: 700;">
+                <i class="fas fa-history me-2"></i>Hoạt Động Liên Quan
+                <span class="badge bg-primary ms-2" th:text="${#lists.size(relatedActivities)}">0</span>
+            </h4>
+            
+            <div class="related-activity" th:each="related : ${relatedActivities}">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div class="flex-grow-1">
+                        <div class="mb-2">
+                            <span class="badge" 
+                                  th:classappend="${related.action == 'CREATE' ? 'bg-success' : 
+                                                  related.action == 'UPDATE' ? 'bg-primary' : 
+                                                  related.action == 'DELETE' ? 'bg-danger' : 'bg-secondary'}"
+                                  th:text="${related.action}">ACTION</span>
+                            <span class="ms-2" style="color: #4b5563;" th:text="${related.description}">Description</span>
+                        </div>
+                        <small class="text-muted">
+                            <i class="fas fa-user me-1"></i>
+                            <span th:text="${related.adminUsername}">Admin</span>
+                            <span class="ms-3">
+                                <i class="fas fa-clock me-1"></i>
+                                <span th:text="${#temporals.format(related.timestamp, 'dd/MM/yyyy HH:mm')}">Time</span>
+                            </span>
+                        </small>
+                    </div>
+                    <a th:href="@{/admin/activities/{id}(id=${related.id})}" 
+                       class="btn btn-sm btn-outline-primary"
+                       style="border-radius: 8px;">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="text-center mt-4">
+            <a href="/admin/activities" class="btn btn-lg btn-primary" 
+               style="border-radius: 12px; padding: 1rem 2rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none;">
+                <i class="fas fa-list me-2"></i>Xem Tất Cả Hoạt Động
+            </a>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block th:insert="~{admin/layout :: admin-scripts}"></th:block>
+</body>
+</html>

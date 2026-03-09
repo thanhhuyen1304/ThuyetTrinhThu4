@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhật Ký Hoạt Động - FAHASA Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <th:block th:insert="~{admin/layout :: admin-styles}"></th:block>
+    <style>
+        .page-title {
+            color: white !important;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            -webkit-text-fill-color: white !important;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 500;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .activity-timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+        
+        .activity-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0.5rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .activity-item {
+            position: relative;
+            margin-bottom: 1.5rem;
+            padding: 1.25rem;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .activity-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .activity-item::before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: white;
+            border: 3px solid #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.2);
+        }
+        
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.125rem;
+            color: white;
+        }
+        
+        .activity-icon.create {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        
+        .activity-icon.update {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        
+        .activity-icon.delete {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        }
+        
+        .activity-icon.view {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+        
+        .activity-icon.login {
+            background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+        }
+        
+        .filter-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+        }
+        
+        .stat-content {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <th:block th:insert="~{admin/layout :: admin-navbar}"></th:block>
+    <th:block th:insert="~{admin/layout :: admin-sidebar(activePage='activities')}"></th:block>
+    
+    <div class="admin-content">
+        <div class="mb-5">
+            <h1 class="page-title">
+                <i class="fas fa-history me-3"></i>Nhật Ký Hoạt Động
+            </h1>
+            <p class="page-subtitle">Theo dõi các hoạt động của admin trong hệ thống</p>
+        </div>
+        
+        <!-- Statistics Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #667eea;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">TỔNG HOẠT ĐỘNG</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #667eea; margin-bottom: 0.25rem;" th:text="${#lists.size(activities)}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Đã ghi nhận</div>
+                    </div>
+                    <i class="fas fa-list" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #667eea; opacity: 0.1;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #10b981;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">TẠO MỚI</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #10b981; margin-bottom: 0.25rem;" th:text="${createCount}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Thêm dữ liệu</div>
+                    </div>
+                    <i class="fas fa-plus" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #10b981; opacity: 0.1;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #3b82f6;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">CẬP NHẬT</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #3b82f6; margin-bottom: 0.25rem;" th:text="${updateCount}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Sửa đổi</div>
+                    </div>
+                    <i class="fas fa-edit" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #3b82f6; opacity: 0.1;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #ef4444;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">XÓA</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #ef4444; margin-bottom: 0.25rem;" th:text="${deleteCount}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Loại bỏ</div>
+                    </div>
+                    <i class="fas fa-trash" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #ef4444; opacity: 0.1;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Filter Card -->
+        <div class="filter-card">
+            <form method="get" action="/admin/activities">
+                <div class="row g-3">
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-calendar-alt me-2"></i>Thời Gian
+                        </label>
+                        <select name="timeRange" class="form-select" onchange="this.form.submit()">
+                            <option value="">Tất cả</option>
+                            <option value="today" th:selected="${selectedTimeRange == 'today'}">Hôm nay</option>
+                            <option value="week" th:selected="${selectedTimeRange == 'week'}">Tuần này</option>
+                            <option value="month" th:selected="${selectedTimeRange == 'month'}">Tháng này</option>
+                            <option value="3months" th:selected="${selectedTimeRange == '3months'}">3 tháng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-bolt me-2"></i>Hành Động
+                        </label>
+                        <select name="action" class="form-select" onchange="this.form.submit()">
+                            <option value="">Tất cả</option>
+                            <option value="CREATE" th:selected="${selectedAction == 'CREATE'}">Tạo mới</option>
+                            <option value="UPDATE" th:selected="${selectedAction == 'UPDATE'}">Cập nhật</option>
+                            <option value="DELETE" th:selected="${selectedAction == 'DELETE'}">Xóa</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-layer-group me-2"></i>Loại Đối Tượng
+                        </label>
+                        <select name="entityType" class="form-select" onchange="this.form.submit()">
+                            <option value="">Tất cả</option>
+                            <option value="BOOK" th:selected="${selectedEntityType == 'BOOK'}">Sách</option>
+                            <option value="USER" th:selected="${selectedEntityType == 'USER'}">Người dùng</option>
+                            <option value="ORDER" th:selected="${selectedEntityType == 'ORDER'}">Đơn hàng</option>
+                            <option value="CATEGORY" th:selected="${selectedEntityType == 'CATEGORY'}">Danh mục</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-user-shield me-2"></i>Admin
+                        </label>
+                        <input type="text" name="adminUsername" class="form-select" 
+                               placeholder="Tên admin" th:value="${selectedAdmin}">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="fas fa-filter me-2"></i>Lọc
+                        </button>
+                        <a href="/admin/activities" class="btn btn-outline-secondary">
+                            <i class="fas fa-redo"></i>
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        <!-- Activities Timeline -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list me-2"></i>Danh Sách Hoạt Động
+                <span class="badge bg-primary ms-2" th:text="${#lists.size(activities)}">0</span>
+            </div>
+            <div class="card-body">
+                <div class="activity-timeline" th:if="${!#lists.isEmpty(activities)}">
+                    <div class="activity-item" th:each="activity : ${activities}"
+                         th:style="'border-left: 4px solid ' + 
+                                  ${activity.action == 'CREATE' ? '#10b981' : 
+                                    activity.action == 'UPDATE' ? '#3b82f6' : 
+                                    activity.action == 'DELETE' ? '#ef4444' : 
+                                    activity.action == 'LOGIN' ? '#06b6d4' : '#8b5cf6'}">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="activity-icon" 
+                                 th:classappend="${activity.action == 'CREATE' ? 'create' : 
+                                                 activity.action == 'UPDATE' ? 'update' : 
+                                                 activity.action == 'DELETE' ? 'delete' : 
+                                                 activity.action == 'LOGIN' ? 'login' : 'view'}">
+                                <i th:class="${activity.action == 'CREATE' ? 'fas fa-plus' : 
+                                             activity.action == 'UPDATE' ? 'fas fa-edit' : 
+                                             activity.action == 'DELETE' ? 'fas fa-trash' : 
+                                             activity.action == 'LOGIN' ? 'fas fa-sign-in-alt' : 'fas fa-eye'}"></i>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div class="flex-grow-1">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <span class="badge" 
+                                                  th:classappend="${activity.action == 'CREATE' ? 'bg-success' : 
+                                                                  activity.action == 'UPDATE' ? 'bg-primary' : 
+                                                                  activity.action == 'DELETE' ? 'bg-danger' : 
+                                                                  activity.action == 'LOGIN' ? 'bg-info' : 'bg-secondary'}"
+                                                  th:text="${activity.action}">ACTION</span>
+                                            <span class="badge bg-light text-dark" th:text="${activity.entityType}">TYPE</span>
+                                            <span th:if="${activity.entityId != null}" 
+                                                  class="badge bg-secondary" 
+                                                  style="font-family: monospace; font-size: 0.75rem;">
+                                                ID: <span th:text="${#strings.length(activity.entityId) > 8 ? #strings.substring(activity.entityId, 0, 8) + '...' : activity.entityId}">ID</span>
+                                            </span>
+                                        </div>
+                                        <h6 class="mb-2 fw-bold" style="color: #1f2937; font-size: 1rem;" th:text="${activity.description}">Description</h6>
+                                        
+                                        <!-- Show change preview for UPDATE actions -->
+                                        <div th:if="${activity.action == 'UPDATE' and activity.oldValue != null and activity.newValue != null}" 
+                                             style="background: #f9fafb; border-radius: 8px; padding: 0.75rem; margin: 0.5rem 0; border-left: 3px solid #3b82f6;">
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
+                                                <span style="color: #ef4444; text-decoration: line-through; font-weight: 500;" 
+                                                      th:text="${#strings.length(activity.oldValue) > 50 ? #strings.substring(activity.oldValue, 0, 50) + '...' : activity.oldValue}">Old</span>
+                                                <i class="fas fa-arrow-right" style="color: #6b7280; font-size: 0.75rem;"></i>
+                                                <span style="color: #10b981; font-weight: 600;" 
+                                                      th:text="${#strings.length(activity.newValue) > 50 ? #strings.substring(activity.newValue, 0, 50) + '...' : activity.newValue}">New</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="d-flex flex-wrap gap-3 align-items-center">
+                                            <small class="text-muted">
+                                                <i class="fas fa-user-shield me-1" style="color: #667eea;"></i>
+                                                <span class="fw-semibold" th:text="${activity.adminUsername}">Admin</span>
+                                            </small>
+                                            <span th:if="${activity.ipAddress != null}" class="text-muted" style="font-size: 0.875rem;">
+                                                <i class="fas fa-map-marker-alt me-1" style="color: #f59e0b;"></i>
+                                                <span th:text="${activity.ipAddress}">IP</span>
+                                            </span>
+                                            <span th:if="${activity.entityName != null}" class="text-muted" style="font-size: 0.875rem;">
+                                                <i class="fas fa-tag me-1" style="color: #8b5cf6;"></i>
+                                                <span th:text="${activity.entityName}">Entity Name</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex flex-column align-items-end gap-2" style="min-width: 180px;">
+                                        <small class="text-muted" style="white-space: nowrap; font-size: 0.875rem;">
+                                            <i class="fas fa-clock me-1"></i>
+                                            <span th:text="${#temporals.format(activity.timestamp, 'dd/MM/yyyy HH:mm:ss')}">Time</span>
+                                        </small>
+                                        <a th:href="@{/admin/activities/{id}(id=${activity.id})}" 
+                                           class="btn btn-sm btn-outline-primary"
+                                           style="border-radius: 8px; padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                                            <i class="fas fa-eye me-1"></i>Chi tiết
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div th:if="${#lists.isEmpty(activities)}" class="text-center py-5">
+                    <i class="fas fa-history" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+                    <p style="color: #6b7280; font-size: 1.125rem; margin: 0;">Chưa có hoạt động nào</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block th:insert="~{admin/layout :: admin-scripts}"></th:block>
+</body>
+</html>

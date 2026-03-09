@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to BookStore</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+        }
+        .content {
+            background: #f8f9fa;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+        }
+        .feature-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+        .feature-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📚 Chào Mừng Đến Với BookStore!</h1>
+    </div>
+    
+    <div class="content">
+        <p>Xin chào <strong th:text="${username}">User</strong>,</p>
+        
+        <p>Cảm ơn bạn đã đăng ký tài khoản tại BookStore! Chúng tôi rất vui mừng được chào đón bạn.</p>
+        
+        <h3>Khám Phá Những Tính Năng Tuyệt Vời:</h3>
+        
+        <div class="feature-box">
+            <div class="feature-icon">📖</div>
+            <h4>Hàng Ngàn Đầu Sách</h4>
+            <p>Khám phá bộ sưu tập sách phong phú từ nhiều thể loại khác nhau.</p>
+        </div>
+        
+        <div class="feature-box">
+            <div class="feature-icon">🚚</div>
+            <h4>Giao Hàng Nhanh Chóng</h4>
+            <p>Nhận sách tại nhà trong 2-3 ngày làm việc.</p>
+        </div>
+        
+        <div class="feature-box">
+            <div class="feature-icon">💳</div>
+            <h4>Thanh Toán Linh Hoạt</h4>
+            <p>Nhiều phương thức thanh toán tiện lợi và an toàn.</p>
+        </div>
+        
+        <div class="feature-box">
+            <div class="feature-icon">⭐</div>
+            <h4>Đánh Giá & Nhận Xét</h4>
+            <p>Chia sẻ trải nghiệm và đọc đánh giá từ cộng đồng.</p>
+        </div>
+        
+        <p>Hãy bắt đầu hành trình khám phá tri thức của bạn ngay hôm nay!</p>
+        
+        <center>
+            <a href="http://localhost:8080" class="button">Khám Phá Ngay</a>
+        </center>
+    </div>
+    
+    <div class="footer">
+        <p>© 2024 BookStore. All rights reserved.</p>
+        <p>Nếu bạn có bất kỳ câu hỏi nào, vui lòng liên hệ với chúng tôi.</p>
+    </div>
+</body>
+</html>

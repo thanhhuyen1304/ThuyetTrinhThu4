@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Thể Loại - FAHASA Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <th:block th:insert="~{admin/layout :: admin-styles}"></th:block>
+    <style>
+        .page-title {
+            color: white !important;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
+            -webkit-text-fill-color: white !important;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 500;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <th:block th:insert="~{admin/layout :: admin-navbar}"></th:block>
+    
+    <!-- Sidebar -->
+    <th:block th:insert="~{admin/layout :: admin-sidebar(activePage='categories')}"></th:block>
+    
+    <!-- Main Content -->
+    <div class="admin-content">
+        <!-- Page Title -->
+        <div class="mb-5">
+            <h1 class="page-title">
+                <i class="fas fa-tags me-3"></i>Quản Lý Thể Loại
+            </h1>
+            <p class="page-subtitle">Danh sách tất cả thể loại sách</p>
+        </div>
+        
+        <!-- Statistics Row -->
+        <div class="row g-4 mb-4">
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #667eea;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">TỔNG THỂ LOẠI</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #667eea; margin-bottom: 0.25rem;" th:text="${totalCategories}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Danh mục</div>
+                    </div>
+                    <i class="fas fa-tags" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #667eea; opacity: 0.1;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #10b981;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">CÓ SÁCH</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #10b981; margin-bottom: 0.25rem;" th:text="${categoriesWithBooks}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Đang dùng</div>
+                    </div>
+                    <i class="fas fa-check-circle" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #10b981; opacity: 0.1;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #ef4444;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">TRỐNG</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #ef4444; margin-bottom: 0.25rem;" th:text="${emptyCategories}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Chưa dùng</div>
+                    </div>
+                    <i class="fas fa-times-circle" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #ef4444; opacity: 0.1;"></i>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card" style="background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 2rem; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border-top: 4px solid #3b82f6;">
+                    <div style="position: relative; z-index: 1;">
+                        <div style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem;">TỔNG SÁCH</div>
+                        <div style="font-size: 2.5rem; font-weight: 800; color: #3b82f6; margin-bottom: 0.25rem;" th:text="${totalBooksInCategories}">0</div>
+                        <div style="font-size: 0.875rem; color: #9ca3af;">Trong kho</div>
+                    </div>
+                    <i class="fas fa-book" style="position: absolute; right: 1.5rem; top: 50%; transform: translateY(-50%); font-size: 4rem; color: #3b82f6; opacity: 0.1;"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="mb-4">
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                <i class="fas fa-plus me-2"></i>Thêm Thể Loại Mới
+            </button>
+        </div>
+        
+        <!-- Categories Table -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list me-2"></i>Danh Sách Thể Loại
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 table-sm">
+                        <thead>
+                            <tr>
+                                <th style="width: 60px; font-size: 0.875rem;">ID</th>
+                                <th style="font-size: 0.875rem;">Tên Thể Loại</th>
+                                <th style="font-size: 0.875rem;">Mô Tả</th>
+                                <th style="width: 130px; font-size: 0.875rem;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="category : ${categories}" style="font-size: 0.875rem;">
+                                <td>
+                                    <span class="badge bg-secondary" style="font-size: 0.75rem; padding: 0.25rem 0.5rem;" 
+                                          th:text="${#strings.substring(category.id, 0, 6)}">ID</span>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; color: #1f2937; font-size: 0.875rem;" th:text="${category.name}">Name</div>
+                                </td>
+                                <td style="color: #4b5563; font-size: 0.875rem;" th:text="${category.description}">Description</td>
+                                <td>
+                                    <div class="d-flex gap-1">
+                                        <button class="btn btn-sm btn-warning" 
+                                                th:attr="onclick=|editCategory('${category.id}', '${category.name}', '${category.description}')|"
+                                                title="Sửa"
+                                                style="border-radius: 6px; padding: 0.25rem 0.5rem;">
+                                            <i class="fas fa-edit" style="font-size: 0.75rem;"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" 
+                                                th:attr="onclick=|deleteCategory('${category.id}', '${category.name}')|"
+                                                title="Xóa"
+                                                style="border-radius: 6px; padding: 0.25rem 0.5rem;">
+                                            <i class="fas fa-trash" style="font-size: 0.75rem;"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(categories)}">
+                                <td colspan="4" class="text-center py-5">
+                                    <i class="fas fa-tags" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+                                    <p style="color: #6b7280; font-size: 1.125rem; margin: 0;">Chưa có thể loại nào</p>
+                                    <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                                        <i class="fas fa-plus me-2"></i>Thêm Thể Loại Đầu Tiên
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Add Category Modal -->
+    <div class="modal fade" id="addCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <div class="modal-header" style="background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%); border-bottom: 1px solid rgba(102, 126, 234, 0.2); border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title" style="color: #667eea; font-weight: 700;">
+                        <i class="fas fa-plus-circle me-2"></i>Thêm Thể Loại Mới
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/categories/save}" method="post">
+                    <div class="modal-body" style="padding: 2rem;">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Thể Loại *</label>
+                            <input type="text" class="form-control" name="name" placeholder="VD: Lập Trình" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô Tả</label>
+                            <textarea class="form-control" name="description" rows="3" 
+                                      placeholder="Nhập mô tả thể loại"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid rgba(102, 126, 234, 0.2);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Lưu Thể Loại
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Category Modal -->
+    <div class="modal fade" id="editCategoryModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <div class="modal-header" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%); border-bottom: 1px solid rgba(59, 130, 246, 0.2); border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title" style="color: #3b82f6; font-weight: 700;">
+                        <i class="fas fa-edit me-2"></i>Chỉnh Sửa Thể Loại
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{/admin/categories/update}" method="post">
+                    <input type="hidden" id="editCategoryId" name="id">
+                    <div class="modal-body" style="padding: 2rem;">
+                        <div class="mb-3">
+                            <label class="form-label">Tên Thể Loại *</label>
+                            <input type="text" class="form-control" id="editCategoryName" name="name" placeholder="VD: Lập Trình" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Mô Tả</label>
+                            <textarea class="form-control" id="editCategoryDescription" name="description" rows="3" 
+                                      placeholder="Nhập mô tả thể loại"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="border-top: 1px solid rgba(59, 130, 246, 0.2);">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Hủy
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Cập Nhật
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Confirm Delete Modal -->
+    <div class="modal fade" id="confirmDeleteModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none; box-shadow: 0 10px 40px rgba(0,0,0,0.2);">
+                <div class="modal-header" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%); border-bottom: 1px solid rgba(239, 68, 68, 0.2); border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title" style="color: #ef4444; font-weight: 700;">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Xác Nhận Xóa
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" style="padding: 2rem;">
+                    <p style="font-size: 1.125rem; color: #374151; margin: 0;">
+                        Bạn có chắc muốn xóa thể loại <strong id="categoryNameToDelete"></strong> không?
+                    </p>
+                    <p style="color: #6b7280; margin-top: 0.5rem; margin-bottom: 0;">
+                        Hành động này không thể hoàn tác!
+                    </p>
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid rgba(239, 68, 68, 0.2);">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">
+                        <i class="fas fa-trash me-2"></i>Xóa
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+        <div id="successToast" class="toast align-items-center text-white bg-success border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <span id="successMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+        <div id="errorToast" class="toast align-items-center text-white bg-danger border-0" role="alert">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="fas fa-exclamation-circle me-2"></i>
+                    <span id="errorMessage"></span>
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block th:insert="~{admin/layout :: admin-scripts}"></th:block>
+    
+    <script>
+        let categoryIdToDelete = null;
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmDeleteModal'));
+        const editModal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+        
+        function editCategory(categoryId, categoryName, categoryDescription) {
+            document.getElementById('editCategoryId').value = categoryId;
+            document.getElementById('editCategoryName').value = categoryName;
+            document.getElementById('editCategoryDescription').value = categoryDescription || '';
+            editModal.show();
+        }
+        
+        function deleteCategory(categoryId, categoryName) {
+            categoryIdToDelete = categoryId;
+            document.getElementById('categoryNameToDelete').textContent = categoryName;
+            confirmModal.show();
+        }
+        
+        function confirmDelete() {
+            if (!categoryIdToDelete) return;
+            
+            window.location.href = '/admin/categories/delete?id=' + categoryIdToDelete;
+        }
+        
+        function showToast(message, isSuccess) {
+            const toastId = isSuccess ? 'successToast' : 'errorToast';
+            const messageId = isSuccess ? 'successMessage' : 'errorMessage';
+            
+            document.getElementById(messageId).textContent = message;
+            const toast = new bootstrap.Toast(document.getElementById(toastId));
+            toast.show();
+        }
+    </script>
+</body>
+</html>

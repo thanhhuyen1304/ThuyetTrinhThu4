@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản Lý Người Dùng - FAHASA Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <th:block th:insert="~{admin/layout :: admin-styles}"></th:block>
+</head>
+<body>
+    <!-- Navbar -->
+    <th:block th:insert="~{admin/layout :: admin-navbar}"></th:block>
+    
+    <!-- Sidebar -->
+    <th:block th:insert="~{admin/layout :: admin-sidebar(activePage='users')}"></th:block>
+    
+    <!-- Main Content -->
+    <div class="admin-content">
+        <!-- Page Title -->
+        <div class="mb-5">
+            <h1 class="page-title">
+                <i class="fas fa-users me-3"></i>Quản Lý Người Dùng
+            </h1>
+            <p class="page-subtitle">Danh sách tất cả người dùng trong hệ thống</p>
+        </div>
+        
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card" style="border: none; border-radius: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p style="margin: 0; opacity: 0.9; font-size: 0.875rem;">Tổng Người Dùng</p>
+                                <h2 style="margin: 0.5rem 0 0 0; font-weight: 700;" th:text="${totalUsers}">0</h2>
+                            </div>
+                            <i class="fas fa-users" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card" style="border: none; border-radius: 15px; background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; box-shadow: 0 10px 30px rgba(245, 87, 108, 0.3);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p style="margin: 0; opacity: 0.9; font-size: 0.875rem;">Admin</p>
+                                <h2 style="margin: 0.5rem 0 0 0; font-weight: 700;" th:text="${adminCount}">0</h2>
+                            </div>
+                            <i class="fas fa-user-shield" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card" style="border: none; border-radius: 15px; background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; box-shadow: 0 10px 30px rgba(79, 172, 254, 0.3);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p style="margin: 0; opacity: 0.9; font-size: 0.875rem;">Người Dùng</p>
+                                <h2 style="margin: 0.5rem 0 0 0; font-weight: 700;" th:text="${userCount}">0</h2>
+                            </div>
+                            <i class="fas fa-user" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card" style="border: none; border-radius: 15px; background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white; box-shadow: 0 10px 30px rgba(67, 233, 123, 0.3);">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p style="margin: 0; opacity: 0.9; font-size: 0.875rem;">Hoạt Động</p>
+                                <h2 style="margin: 0.5rem 0 0 0; font-weight: 700;" th:text="${activeCount}">0</h2>
+                            </div>
+                            <i class="fas fa-check-circle" style="font-size: 2.5rem; opacity: 0.3;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Search and Filter -->
+        <div class="card mb-4" style="border: none; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <div class="input-group">
+                            <span class="input-group-text" style="background: #f3f4f6; border: none;">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" id="searchInput" class="form-control" placeholder="Tìm kiếm theo username, email, họ tên..." style="border: none; background: #f3f4f6;">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <select id="roleFilter" class="form-select" style="border: none; background: #f3f4f6;">
+                            <option value="">Tất cả vai trò</option>
+                            <option value="ADMIN">Admin</option>
+                            <option value="USER">User</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select id="statusFilter" class="form-select" style="border: none; background: #f3f4f6;">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="true">Hoạt động</option>
+                            <option value="false">Bị khóa</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary w-100" onclick="resetFilters()" style="background: #6b7280; border: none;">
+                            <i class="fas fa-redo me-2"></i>Reset
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Users Table -->
+        <div class="card">
+            <div class="card-header">
+                <i class="fas fa-list me-2"></i>Danh Sách Người Dùng
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Avatar</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Họ Tên</th>
+                                <th>Số Điện Thoại</th>
+                                <th style="width: 120px;">Vai Trò</th>
+                                <th style="width: 120px;">Trạng Thái</th>
+                                <th style="width: 120px;">Ngày Tạo</th>
+                                <th style="width: 150px; text-align: center;">Thao Tác</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="user : ${users}" 
+                                th:attr="data-username=${user.username}, data-email=${user.email}, data-fullname=${user.fullName}, data-roles=${#strings.listJoin(user.roles, ',')}, data-enabled=${user.enabled}">
+                                <td>
+                                    <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 1.25rem; box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);"
+                                         th:text="${#strings.substring(user.username, 0, 1).toUpperCase()}">A</div>
+                                </td>
+                                <td>
+                                    <div style="font-weight: 600; color: #1f2937;" th:text="${user.username}">Username</div>
+                                </td>
+                                <td style="color: #6b7280;" th:text="${user.email}">Email</td>
+                                <td style="color: #4b5563;" th:text="${user.fullName}">Full Name</td>
+                                <td style="color: #4b5563;" th:text="${user.phone ?: 'N/A'}">Phone</td>
+                                <td>
+                                    <div th:each="role : ${user.roles}">
+                                        <span class="badge" 
+                                              th:classappend="${role == 'ADMIN' ? 'bg-danger' : 'bg-primary'}"
+                                              style="padding: 0.5rem 1rem; border-radius: 10px; font-weight: 600; margin: 0.25rem 0;"
+                                              th:text="${role}">Role</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge" 
+                                          th:classappend="${user.enabled ? 'bg-success' : 'bg-secondary'}"
+                                          style="padding: 0.5rem 1rem; border-radius: 10px; font-weight: 600;">
+                                        <i th:class="${user.enabled ? 'fas fa-check-circle' : 'fas fa-ban'}" class="me-1"></i>
+                                        <span th:text="${user.enabled ? 'Hoạt động' : 'Bị khóa'}">Status</span>
+                                    </span>
+                                </td>
+                                <td style="color: #6b7280;" th:text="${user.createdAt != null ? #temporals.format(user.createdAt, 'dd/MM/yyyy') : 'N/A'}">Date</td>
+                                <td style="text-align: center;">
+                                    <!-- v3.0 - Fixed admin check -->
+                                    <button class="btn btn-sm btn-info me-1" 
+                                            th:onclick="'viewUser(\'' + ${user.id} + '\')'"
+                                            style="border-radius: 8px; padding: 0.4rem 0.8rem;"
+                                            title="Xem chi tiết">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    
+                                    <!-- Tạo biến để check admin -->
+                                    <th:block th:with="isAdmin=${#lists.isEmpty(user.roles) ? false : #lists.contains(user.roles, 'ADMIN')}">
+                                        <!-- Nếu là admin, chỉ hiện badge bảo vệ -->
+                                        <span th:if="${isAdmin}" class="badge bg-secondary" style="padding: 0.4rem 0.8rem; border-radius: 8px;">
+                                            <i class="fas fa-shield-alt me-1"></i>Bảo vệ
+                                        </span>
+                                        
+                                        <!-- Chỉ hiện nút khóa/xóa nếu KHÔNG phải admin -->
+                                        <th:block th:if="${!isAdmin}">
+                                            <button class="btn btn-sm me-1" 
+                                                    th:classappend="${user.enabled ? 'btn-warning' : 'btn-success'}"
+                                                    th:onclick="'toggleUserStatus(\'' + ${user.id} + '\', ' + ${user.enabled} + ')'"
+                                                    style="border-radius: 8px; padding: 0.4rem 0.8rem;"
+                                                    th:title="${user.enabled ? 'Khóa tài khoản' : 'Mở khóa tài khoản'}">
+                                                <i th:class="${user.enabled ? 'fas fa-lock' : 'fas fa-unlock'}"></i>
+                                            </button>
+                                            <button class="btn btn-sm btn-danger" 
+                                                    th:onclick="'deleteUser(\'' + ${user.id} + '\', \'' + ${user.username} + '\')'"
+                                                    style="border-radius: 8px; padding: 0.4rem 0.8rem;"
+                                                    title="Xóa người dùng">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </th:block>
+                                    </th:block>
+                                </td>
+                            </tr>
+                            <tr th:if="${#lists.isEmpty(users)}">
+                                <td colspan="9" class="text-center py-5">
+                                    <i class="fas fa-users" style="font-size: 3rem; color: #d1d5db; margin-bottom: 1rem;"></i>
+                                    <p style="color: #6b7280; font-size: 1.125rem; margin: 0;">Chưa có người dùng nào</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- User Detail Modal -->
+    <div class="modal fade" id="userDetailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content" style="border-radius: 15px; border: none;">
+                <div class="modal-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px 15px 0 0;">
+                    <h5 class="modal-title"><i class="fas fa-user-circle me-2"></i>Chi Tiết Người Dùng</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="userDetailContent">
+                    <!-- Content will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <th:block th:insert="~{admin/layout :: admin-scripts}"></th:block>
+    
+    <script>
+        // Show all rows on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            showAllRows();
+            
+            document.getElementById('searchInput').addEventListener('keyup', filterTable);
+            document.getElementById('roleFilter').addEventListener('change', filterTable);
+            document.getElementById('statusFilter').addEventListener('change', filterTable);
+        });
+        
+        function showAllRows() {
+            const rows = document.querySelectorAll('#usersTable tbody tr');
+            rows.forEach(row => {
+                row.style.display = '';
+            });
+        }
+        
+        function resetFilters() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('roleFilter').value = '';
+            document.getElementById('statusFilter').value = '';
+            showAllRows();
+        }
+        
+        function filterTable() {
+            const searchValue = document.getElementById('searchInput').value.toLowerCase().trim();
+            const roleValue = document.getElementById('roleFilter').value;
+            const statusValue = document.getElementById('statusFilter').value;
+            const rows = document.querySelectorAll('#usersTable tbody tr');
+            
+            rows.forEach(row => {
+                // Skip the "no data" row
+                if (row.cells.length === 1 || row.querySelector('td[colspan]')) {
+                    return;
+                }
+                
+                const username = (row.getAttribute('data-username') || '').toLowerCase();
+                const email = (row.getAttribute('data-email') || '').toLowerCase();
+                const fullname = (row.getAttribute('data-fullname') || '').toLowerCase();
+                const roles = row.getAttribute('data-roles') || '';
+                const enabled = row.getAttribute('data-enabled') || '';
+                
+                const matchSearch = !searchValue || username.includes(searchValue) || email.includes(searchValue) || fullname.includes(searchValue);
+                const matchRole = !roleValue || roles.includes(roleValue);
+                const matchStatus = !statusValue || enabled === statusValue;
+                
+                row.style.display = (matchSearch && matchRole && matchStatus) ? '' : 'none';
+            });
+        }
+        
+        function viewUser(userId) {
+            // TODO: Implement view user details
+            fetch(`/admin/users/${userId}`)
+                .then(response => response.json())
+                .then(user => {
+                    document.getElementById('userDetailContent').innerHTML = `
+                        <div class="row">
+                            <div class="col-md-4 text-center mb-4">
+                                <div style="width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 3rem; margin: 0 auto; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);">
+                                    ${user.username.substring(0, 1).toUpperCase()}
+                                </div>
+                            </div>
+                            <div class="col-md-8">
+                                <h4 style="color: #1f2937; font-weight: 700; margin-bottom: 1.5rem;">${user.fullName}</h4>
+                                <div class="mb-3">
+                                    <label style="color: #6b7280; font-size: 0.875rem; font-weight: 600;">Username</label>
+                                    <p style="color: #1f2937; font-size: 1.125rem; margin: 0;">${user.username}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="color: #6b7280; font-size: 0.875rem; font-weight: 600;">Email</label>
+                                    <p style="color: #1f2937; font-size: 1.125rem; margin: 0;">${user.email}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="color: #6b7280; font-size: 0.875rem; font-weight: 600;">Số Điện Thoại</label>
+                                    <p style="color: #1f2937; font-size: 1.125rem; margin: 0;">${user.phone || 'N/A'}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="color: #6b7280; font-size: 0.875rem; font-weight: 600;">Địa Chỉ</label>
+                                    <p style="color: #1f2937; font-size: 1.125rem; margin: 0;">${user.address || 'N/A'}</p>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="color: #6b7280; font-size: 0.875rem; font-weight: 600;">Vai Trò</label>
+                                    <div>
+                                        ${user.roles.map(role => `<span class="badge ${role === 'ADMIN' ? 'bg-danger' : 'bg-primary'}" style="padding: 0.5rem 1rem; border-radius: 10px; font-weight: 600; margin-right: 0.5rem;">${role}</span>`).join('')}
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="color: #6b7280; font-size: 0.875rem; font-weight: 600;">Trạng Thái</label>
+                                    <div>
+                                        <span class="badge ${user.enabled ? 'bg-success' : 'bg-secondary'}" style="padding: 0.5rem 1rem; border-radius: 10px; font-weight: 600;">
+                                            <i class="${user.enabled ? 'fas fa-check-circle' : 'fas fa-ban'} me-1"></i>
+                                            ${user.enabled ? 'Hoạt động' : 'Bị khóa'}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    new bootstrap.Modal(document.getElementById('userDetailModal')).show();
+                })
+                .catch(error => {
+                    alert('Không thể tải thông tin người dùng');
+                    console.error(error);
+                });
+        }
+        
+        function toggleUserStatus(userId, currentStatus) {
+            const action = currentStatus ? 'khóa' : 'mở khóa';
+            if (confirm(`Bạn có chắc muốn ${action} tài khoản này?`)) {
+                fetch(`/admin/users/${userId}/toggle-status`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message || `${action.charAt(0).toUpperCase() + action.slice(1)} tài khoản thành công!`);
+                        location.reload();
+                    } else {
+                        alert(data.error || 'Có lỗi xảy ra!');
+                    }
+                })
+                .catch(error => {
+                    alert('Có lỗi xảy ra!');
+                    console.error(error);
+                });
+            }
+        }
+        
+        function deleteUser(userId, username) {
+            if (confirm(`Bạn có chắc muốn xóa người dùng "${username}"? Hành động này không thể hoàn tác!`)) {
+                fetch(`/admin/users/${userId}/delete`, {
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message || 'Xóa người dùng thành công!');
+                        location.reload();
+                    } else {
+                        alert(data.error || 'Có lỗi xảy ra!');
+                    }
+                })
+                .catch(error => {
+                    alert('Có lỗi xảy ra!');
+                    console.error(error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

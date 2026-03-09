@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VNPay Test - Simulate Callback</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #6b7280;
+            margin-bottom: 2rem;
+        }
+        
+        .info-box {
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-box h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-box p {
+            color: #6b7280;
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        button {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+        
+        .btn-failed {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .btn-failed:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+        }
+        
+        .warning {
+            background: #fef3c7;
+            border-left: 4px solid #f59e0b;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 2rem;
+        }
+        
+        .warning p {
+            color: #92400e;
+            font-size: 0.875rem;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 VNPay Test Simulator</h1>
+        <p class="subtitle">Simulate VNPay callback để test thanh toán</p>
+        
+        <div class="info-box">
+            <h3>ℹ️ Hướng Dẫn</h3>
+            <p>
+                1. Checkout với VNPay trên trang chính<br>
+                2. Copy <strong>Pending Payment ID</strong> từ URL VNPay<br>
+                3. Paste vào form dưới đây<br>
+                4. Click "Simulate Success" để giả lập thanh toán thành công
+            </p>
+        </div>
+        
+        <form id="testForm">
+            <div class="form-group">
+                <label for="pendingPaymentId">Pending Payment ID *</label>
+                <input type="text" 
+                       id="pendingPaymentId" 
+                       placeholder="Ví dụ: abc123def456"
+                       required>
+            </div>
+            
+            <div class="form-group">
+                <label for="responseCode">Response Code</label>
+                <select id="responseCode">
+                    <option value="00">00 - Thành công</option>
+                    <option value="24">24 - Hủy giao dịch</option>
+                    <option value="99">99 - Lỗi khác</option>
+                </select>
+            </div>
+            
+            <div class="btn-group">
+                <button type="button" class="btn-success" onclick="simulateCallback('00')">
+                    ✓ Simulate Success
+                </button>
+                <button type="button" class="btn-failed" onclick="simulateCallback('24')">
+                    ✕ Simulate Failed
+                </button>
+            </div>
+        </form>
+        
+        <div class="warning">
+            <p>
+                <strong>⚠️ Lưu ý:</strong> Đây chỉ là công cụ test. 
+                Trong production, VNPay sẽ tự động redirect về callback URL.
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        function simulateCallback(code) {
+            const pendingPaymentId = document.getElementById('pendingPaymentId').value;
+            
+            if (!pendingPaymentId) {
+                alert('Vui lòng nhập Pending Payment ID!');
+                return;
+            }
+            
+            // CHÚ THÍCH: Tạo các tham số giả lập giống như VNPay gửi về sau khi thanh toán xong
+            const params = new URLSearchParams({
+                vnp_TxnRef: pendingPaymentId, // Mã giao dịch của mình
+                vnp_ResponseCode: code, // Mã phản hồi (00 là thành công)
+                vnp_Amount: '10000000', // Số tiền giả (VNPay gửi về VND x 100)
+                vnp_BankCode: 'NCB',
+                vnp_TransactionNo: Math.floor(Math.random() * 1000000000),
+                vnp_PayDate: new Date().toISOString().replace(/[-:T.]/g, '').substring(0, 14)
+            });
+            
+            // CHÚ THÍCH: Chuyển hướng về trang xử lý kết quả của hệ thống
+            window.location.href = '/payment/vnpay/callback?' + params.toString();
+        }
+        
+        // Auto-fill from URL if available
+        window.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pendingId = urlParams.get('pendingId');
+            if (pendingId) {
+                document.getElementById('pendingPaymentId').value = pendingId;
+            }
+        });
+    </script>
+</body>
+</html>
